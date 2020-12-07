@@ -120,7 +120,7 @@ def auth(introspect_response,id,call):
 				print("Read scope is not assigned.")
 				return False
 		else:
-			if ("read" not in r['scopes']):
+			if ("write" not in r['scopes']):
 				print("Write Scope is not assigned.")
 				return False
 
