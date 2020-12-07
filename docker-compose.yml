@@ -8,6 +8,7 @@ services:
     restart: on-failure
     ports:
       - "1935:1935"
+      - "3002:3002"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - .:/root/datasetu-video-server/
@@ -18,4 +19,4 @@ services:
     hostname: auth
     restart: on-failure
     volumes:
-      - /root/datasetu-video-server/auth-backend:/root/auth-backend
+      - ./auth-backend:/root/auth-backend
