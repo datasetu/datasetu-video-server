@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  nginx-rtmp:
+    image: datasetu/video-server
+    container_name: nginx
+    hostname: nginx
+    restart: on-failure
+    ports:
+      - "1935:1935"
+    volumes:
+      - /root/datasetu-video-server/nginx.conf:/etc/nginx/nginx.conf
+      - /root/datasetu-video-server/:/root/datasetu-video-server/
