@@ -1,0 +1,5 @@
+flask
+requests
+datetime
+requests-pkcs12
+config

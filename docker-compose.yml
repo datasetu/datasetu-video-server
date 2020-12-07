@@ -9,5 +9,13 @@ services:
     ports:
       - "1935:1935"
     volumes:
-      - /root/datasetu-video-server/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/nginx.conf
       - /root/datasetu-video-server/:/root/datasetu-video-server/
+
+  auth-backend:
+    image: datasetu/vs-auth-backend
+    container_name: auth
+    hostname: auth
+    restart: on-failure
+    volumes:
+      - /root/datasetu-video-server/auth-backend:/root/auth-backend
