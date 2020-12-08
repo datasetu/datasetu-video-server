@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ $# == 0 ];
+then
+	docker-compose restart
+else
+	docker-compose restart $1
+fi

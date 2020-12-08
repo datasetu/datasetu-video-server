@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-  nginx-rtmp:
+  nginx:
     image: datasetu/video-server
     container_name: nginx
     hostname: nginx
@@ -13,10 +13,12 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - .:/root/datasetu-video-server/
 
-  auth-backend:
+  auth:
     image: datasetu/vs-auth-backend
     container_name: auth
     hostname: auth
     restart: on-failure
+    ports:
+      - "3001:3001"
     volumes:
       - ./auth-backend:/root/auth-backend

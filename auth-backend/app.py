@@ -1,4 +1,5 @@
-__author__ = "Vishwajeet Mishra <vishwajeet@artpark.in"
+from __future__ import print_function
+__author__ = "Vishwajeet Mishra <vishwajeet@artpark.in>"
 # Purpose: Main application file
 import json
 from flask import Flask, request, Response, jsonify, render_template
@@ -6,6 +7,7 @@ from urllib.parse import unquote_plus
 from requests_pkcs12 import post
 import datetime
 import config
+import sys
 app = Flask(__name__,template_folder='.')
 
 token_cache={}
@@ -28,7 +30,7 @@ def is_valid_email (email):
 	if (len(split) != 2):
 		return False
 
-	user = split[0]; # the login email
+	user = split[0] # the login email
 
 	if (len(user) == 0 or len(user) > 30):
 		return False
@@ -138,15 +140,19 @@ def on_live_auth() -> Response:
 	"""
     API to authenticate on_publish
     :return:
-        Response: status_code(200,400)
+        Response: status_code(200,403)
     """
-	
+	# print(request.form,file=sys.stderr)
+	addr = request.form['addr']
+	if (addr == 'localhost:1936/play'):
+		return Response(status=200)
 	token = request.form['token']
 	id = unquote_plus(request.form['name'])
 	call = request.form['call']
+
 	if (not is_valid_token(token)):
 		print("Invalid Token")
-		return Response(status=400)
+		return Response(status=403)
 
 	if (token in token_cache):
 
@@ -157,7 +163,7 @@ def on_live_auth() -> Response:
 		else:
 			if (auth(token_cache[token], id,call)):
 				return Response(status=200)
-			return Response(status=400)
+			return Response(status=403)
 
 
 	body = {'token':token}
@@ -175,12 +181,15 @@ def on_live_auth() -> Response:
 	token_cache[token]=response.json()
 	if(auth(response.json(),id,call)):
 		return Response(status=200)
-	return Response(status=400)
+	return Response(status=403)
 
 
 @app.route("/",methods=['GET'])
 def welcome() -> Response:
-	return render_template('index.html')
+	token = request.args.get('token')
+	id = request.args.get('id')
+	print(id,token,file=sys.stderr)
+	return render_template('index.html',token=token,id=id)
 
 if __name__ == '__main__':
 	app.run(threaded=True, port=3001, host='0.0.0.0')

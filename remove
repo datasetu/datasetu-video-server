@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ $# == 0 ];
+then
+	docker-compose down --remove-orphans -v
+else
+	docker rm -f $1
+fi
