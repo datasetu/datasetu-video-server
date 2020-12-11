@@ -147,7 +147,7 @@ def on_live_auth() -> Response:
 	if (addr == 'localhost:1936/play'):
 		return Response(status=200)
 	token = request.form['token']
-	id = unquote_plus(request.form['name'])
+	id = unquote_plus(request.form['id'])
 	call = request.form['call']
 
 	if (not is_valid_token(token)):
