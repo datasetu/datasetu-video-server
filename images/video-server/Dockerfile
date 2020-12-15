@@ -39,8 +39,9 @@ RUN cd /tmp/build/nginx/${NGINX_VERSION} && \
         --with-http_ssl_module \
         --with-threads \
         --with-ipv6 \
-	--with-stream \
-	--with-stream_ssl_module \
+	    --with-stream \
+	    --with-stream_ssl_module \
+	    --with-http_auth_request_module \
         --add-module=/tmp/build/nginx-rtmp-module/nginx-rtmp-module-${NGINX_RTMP_MODULE_VERSION} && \
     make -j $(getconf _NPROCESSORS_ONLN) && \
     make install && \
@@ -50,7 +51,6 @@ RUN cd /tmp/build/nginx/${NGINX_VERSION} && \
 # Forward logs to Docker
 RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
     ln -sf /dev/stderr /var/log/nginx/error.log
-
 # Set up config file
 COPY nginx.conf /etc/nginx/nginx.conf
 

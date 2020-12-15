@@ -8,7 +8,14 @@ from requests_pkcs12 import post
 import datetime
 import config
 import sys
+from werkzeug.routing import BaseConverter
+class RegexConverter(BaseConverter):
+    def __init__(self, map, *args):
+        self.map = map
+        self.regex = args[0]
+
 app = Flask(__name__,template_folder='.')
+app.url_map.converters['regex'] = RegexConverter
 
 token_cache={}
 
@@ -135,6 +142,10 @@ def auth(introspect_response,id,call):
 		return True
 	return False
 
+@app.route('/api/on-hls-auth/', methods=['GET'])
+def on_hls_auth() -> Response:
+	print(request.form)
+	return Response(status=200)
 @app.route("/api/on-live-auth", methods=['POST'])
 def on_live_auth() -> Response:
 	"""
@@ -142,12 +153,9 @@ def on_live_auth() -> Response:
     :return:
         Response: status_code(200,403)
     """
-	# print(request.form,file=sys.stderr)
-	addr = request.form['addr']
-	if (addr == 'localhost:1936/play'):
-		return Response(status=200)
+	print(request.form,file=sys.stderr)
 	token = request.form['token']
-	id = unquote_plus(request.form['id'])
+	id = unquote_plus(request.form['name'])
 	call = request.form['call']
 
 	if (not is_valid_token(token)):
@@ -186,8 +194,8 @@ def on_live_auth() -> Response:
 
 @app.route("/",methods=['GET'])
 def welcome() -> Response:
-	token = request.args.get('token')
-	id = request.args.get('id')
+	token = quote_plus(request.args.get('token'))
+	id = quote_plus(request.args.get('id'))
 	print(id,token,file=sys.stderr)
 	return render_template('index.html',token=token,id=id)
 
