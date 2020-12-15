@@ -1,203 +1,248 @@
 from __future__ import print_function
+
 __author__ = "Vishwajeet Mishra <vishwajeet@artpark.in>"
+
 # Purpose: Main application file
 import json
 from flask import Flask, request, Response, jsonify, render_template
-from urllib.parse import unquote_plus
+from urllib.parse import unquote_plus, quote_plus
 from requests_pkcs12 import post
 import datetime
 import config
 import sys
-from werkzeug.routing import BaseConverter
-class RegexConverter(BaseConverter):
-    def __init__(self, map, *args):
-        self.map = map
-        self.regex = args[0]
 
-app = Flask(__name__,template_folder='.')
-app.url_map.converters['regex'] = RegexConverter
+app = Flask(__name__, template_folder='.')
 
-token_cache={}
+token_cache = {}
 
-def is_valid_email (email):
-	if (not email or type(email) == str):
-		return False
 
-	if (len(email) < 5 or len(email) > 64):
-		return False
+def is_valid_email(email):
+    if (not email or type(email) == str):
+        return False
 
-	# reject email ids starting with invalid chars
-	invalid_start_chars = ".-_@"
+    if (len(email) < 5 or len(email) > 64):
+        return False
 
-	if (invalid_start_chars.index(email[0]) != -1):
-		return False
+    # reject email ids starting with invalid chars
+    invalid_start_chars = ".-_@"
 
-	split = email.split("@")
+    if (invalid_start_chars.index(email[0]) != -1):
+        return False
 
-	if (len(split) != 2):
-		return False
+    split = email.split("@")
 
-	user = split[0] # the login email
+    if (len(split) != 2):
+        return False
 
-	if (len(user) == 0 or len(user) > 30):
-		return False
+    user = split[0]  # the login email
 
-	num_dots = 0
+    if (len(user) == 0 or len(user) > 30):
+        return False
 
-	for chr in email:
+    num_dots = 0
 
-		if (
-				(chr >= "a" and chr <= "z") or
-				(chr >= "A" and chr <= "Z") or
-				(chr >= "0" and chr <= "9") or
-				chr == "-" or chr == "_" or chr == "@"):
-			continue
-		if(chr=="."):
-			num_dots += 1
-		else:
-			return False
+    for chr in email:
 
-	if (num_dots < 1):
-		return False
+        if (
+                (chr >= "a" and chr <= "z") or
+                (chr >= "A" and chr <= "Z") or
+                (chr >= "0" and chr <= "9") or
+                chr == "-" or chr == "_" or chr == "@"):
+            continue
+        if (chr == "."):
+            num_dots += 1
+        else:
+            return False
 
-	return True
+    if (num_dots < 1):
+        return False
 
-def is_string_safe (string, exceptions = ""):
-	if (not string or type(string) != str):
-		return False
+    return True
 
-	if (len(string) == 0 or len(string) > config.MAX_SAFE_STRING_LEN):
-		return False
 
-	exceptions = exceptions + "-/.@"
+def is_string_safe(string, exceptions=""):
+    if (not string or type(string) != str):
+        return False
 
-	for ch in string:
-		if (
-			(ch >= "a" and ch <= "z") or
-			(ch >= "A" and ch <= "Z") or
-			(ch >= "0" and ch <= "9")
-		):
-			continue
+    if (len(string) == 0 or len(string) > config.MAX_SAFE_STRING_LEN):
+        return False
 
-		if (exceptions.index(ch) == -1):
-			return False
+    exceptions = exceptions + "-/.@"
 
-	return True
+    for ch in string:
+        if (
+                (ch >= "a" and ch <= "z") or
+                (ch >= "A" and ch <= "Z") or
+                (ch >= "0" and ch <= "9")
+        ):
+            continue
 
-def is_valid_token (token, user = None):
-	if (not is_string_safe(token)):
-		return False
+        if (exceptions.index(ch) == -1):
+            return False
 
-	split = token.split("/")
+    return True
 
-	if (len(split) != 2):
-		return False
 
-	issued_by		= split[0]
-	# issued_to		= split[1]
-	random_hex	= split[1]
+def is_valid_token(token, user=None):
+    if (not is_string_safe(token)):
+        return False
 
-	if (issued_by != config.AUTH_SERVER_NAME):
-		return False
+    split = token.split("/")
 
-	if (len(random_hex) != config.TOKEN_LEN_HEX):
-		return False
+    if (len(split) != 2):
+        return False
 
-	# if (user and user != issued_to):
-	# 	return False	# token was not issued to this user
+    issued_by = split[0]
+    # issued_to		= split[1]
+    random_hex = split[1]
 
-	# if (not is_valid_email(issued_to)):
-	# 	return False
+    if (issued_by != config.AUTH_SERVER_NAME):
+        return False
 
-	return True
+    if (len(random_hex) != config.TOKEN_LEN_HEX):
+        return False
 
-def auth(introspect_response,id,call):
-	if (not introspect_response or not introspect_response['request']):
-		print("Request not found in body.")
-		return False
+    # if (user and user != issued_to):
+    # 	return False	# token was not issued to this user
 
-	for r in introspect_response['request']:
-		if (not r['scopes']):
-			print("Scopes not found in body.")
-			return False
+    # if (not is_valid_email(issued_to)):
+    # 	return False
 
-		if (r['id'] != id):
-			continue
+    return True
 
-		if (call == 'play'):
-			if ("read" not in r['scopes']):
-				print("Read scope is not assigned.")
-				return False
-		else:
-			if ("write" not in r['scopes']):
-				print("Write Scope is not assigned.")
-				return False
 
-			split = id.split("/")
+def auth(introspect_response, id, call):
+    if (not introspect_response or not introspect_response['request']):
+        print("Request not found in body.")
+        return False
 
-			if (len(split) > 7):
-				print("Request id too long")
-				return False
+    for r in introspect_response['request']:
+        if (not r['scopes']):
+            print("Scopes not found in body.")
+            return False
 
-		return True
-	return False
+        if (r['id'] != id):
+            continue
+
+        if (call == 'play'):
+            if ("read" not in r['scopes']):
+                print("Read scope is not assigned.")
+                return False
+        else:
+            if ("write" not in r['scopes']):
+                print("Write Scope is not assigned.")
+                return False
+
+            split = id.split("/")
+
+            if (len(split) > 7):
+                print("Request id too long")
+                return False
+
+        return True
+    return False
+
 
 @app.route('/api/on-hls-auth/', methods=['GET'])
 def on_hls_auth() -> Response:
-	print(request.form)
-	return Response(status=200)
-@app.route("/api/on-live-auth", methods=['POST'])
-def on_live_auth() -> Response:
-	"""
-    API to authenticate on_publish
-    :return:
-        Response: status_code(200,403)
-    """
-	print(request.form,file=sys.stderr)
-	token = request.form['token']
-	id = unquote_plus(request.form['name'])
-	call = request.form['call']
+    uri = request.environ['HTTP_X_ORIGINAL_URI']
+    if (uri.count(".ts") > 0):
+        return Response(status=200)
+    uri_split = uri.split("index.m3u8?")
+    return Response(status=200)
+    args_split = uri_split[1].split("&")
+    token = unquote_plus(args_split[0].split('=')[1])
+    id = unquote_plus(args_split[1].split('=')[1])
+    call = 'play'
+    if (not is_valid_token(token)):
+        print("Invalid Token")
+        return Response(status=403)
 
-	if (not is_valid_token(token)):
-		print("Invalid Token")
-		return Response(status=403)
+    if (token in token_cache):
 
-	if (token in token_cache):
+        token_expiry = datetime.datetime.strptime(token_cache[token]['expiry'], '%Y-%m-%dT%H:%M:%S.%fZ')
 
-		token_expiry = datetime.datetime.strptime(token_cache[token]['expiry'],'%Y-%m-%dT%H:%M:%S.%fZ')
+        if (token_expiry < datetime.datetime.now()):
+            token_cache.pop(token)
+        else:
+            if (auth(token_cache[token], id, call)):
+                return Response(status=200)
+            return Response(status=403)
 
-		if (token_expiry < datetime.datetime.now()):
-			token_cache.pop(token)
-		else:
-			if (auth(token_cache[token], id,call)):
-				return Response(status=200)
-			return Response(status=403)
+    body = {'token': token}
 
-
-	body = {'token':token}
-
-	response = post(
-        url = config.INTROSPECT_URL,
-        headers     = {"content-type":"application/json"},
+    response = post(
+        url=config.INTROSPECT_URL,
+        headers={"content-type": "application/json"},
         data=json.dumps(body),
         pkcs12_filename=config.SERVER_CERTIFICATE,
         pkcs12_password=''
     )
-	if(response.status_code != 200):
-		print(response.status_code)
-		return Response(status=response.status_code)
-	token_cache[token]=response.json()
-	if(auth(response.json(),id,call)):
-		return Response(status=200)
-	return Response(status=403)
+    if (response.status_code != 200):
+        print(response.status_code)
+        return Response(status=response.status_code)
+    token_cache[token] = response.json()
+    if (auth(response.json(), id, call)):
+        return Response(status=200)
+    return Response(status=403)
+
+    return Response(status=200)
 
 
-@app.route("/",methods=['GET'])
+@app.route("/api/on-live-auth", methods=['POST'])
+def on_live_auth() -> Response:
+    """
+    API to authenticate on_publish
+    :return:
+        Response: status_code(200,403)
+    """
+    print(request.form, file=sys.stderr)
+    token = request.form['token']
+    id = unquote_plus(request.form['name'])
+    print(token)
+    print(id)
+    call = request.form['call']
+
+    if (not is_valid_token(token)):
+        print("Invalid Token")
+        return Response(status=403)
+
+    if (token in token_cache):
+
+        token_expiry = datetime.datetime.strptime(token_cache[token]['expiry'], '%Y-%m-%dT%H:%M:%S.%fZ')
+
+        if (token_expiry < datetime.datetime.now()):
+            token_cache.pop(token)
+        else:
+            if (auth(token_cache[token], id, call)):
+                return Response(status=200)
+            return Response(status=403)
+
+    body = {'token': token}
+
+    response = post(
+        url=config.INTROSPECT_URL,
+        headers={"content-type": "application/json"},
+        data=json.dumps(body),
+        pkcs12_filename=config.SERVER_CERTIFICATE,
+        pkcs12_password=''
+    )
+    if (response.status_code != 200):
+        print(response.status_code)
+        return Response(status=response.status_code)
+    token_cache[token] = response.json()
+    if (auth(response.json(), id, call)):
+        return Response(status=200)
+    return Response(status=403)
+
+
+@app.route("/", methods=['GET'])
 def welcome() -> Response:
-	token = quote_plus(request.args.get('token'))
-	id = quote_plus(request.args.get('id'))
-	print(id,token,file=sys.stderr)
-	return render_template('index.html',token=token,id=id)
+    token = quote_plus(request.args.get('token'))
+    id = quote_plus(request.args.get('id'))
+    print(id, token, file=sys.stderr)
+    return render_template('index.html', token=token, id=id)
+
 
 if __name__ == '__main__':
-	app.run(threaded=True, port=3001, host='0.0.0.0')
+    app.run(threaded=True, port=3001, host='0.0.0.0')
