@@ -60,26 +60,26 @@ def is_valid_token(token, user=None):
     return True
 
 
-def symlink(id):
-    id_split = id.split('/')
+def symlink(resource_id):
+    resource_id_split = resource_id.split('/')
 
-    dir = config.HLS_SCR_DIR
+    hls_src_dir = config.HLS_SCR_DIR
 
-    src = dir + '/' + quote_plus(id)
+    src = hls_src_dir + '/' + quote_plus(resource_id)
 
-    for segment in range(len(id_split) - 1):
-        dir += '/' + id_split[segment]
+    for segment in range(len(resource_id_split) - 1):
+        hls_src_dir += '/' + resource_id_split[segment]
 
-        if not os.path.exists(dir):
-            os.makedirs(dir)
+        if not os.path.exists(hls_src_dir):
+            os.makedirs(hls_src_dir)
 
-    dir += '/' + id_split[-1]
+    hls_src_dir += '/' + resource_id_split[-1]
 
-    if not os.path.islink(dir):
-        os.symlink(src, dir)
+    if not os.path.islink(hls_src_dir):
+        os.symlink(src, hls_src_dir)
 
 
-def auth(introspect_response, id, call):
+def auth(introspect_response, resource_id, call):
     if (not introspect_response or not introspect_response['request']):
         print("Request not found in body.")
         return False
@@ -89,7 +89,7 @@ def auth(introspect_response, id, call):
             print("Scopes not found in body.")
             return False
 
-        if (r['id'] != id):
+        if (r['id'] != resource_id):
             continue
 
         if (call == 'play'):
@@ -101,7 +101,7 @@ def auth(introspect_response, id, call):
                 print("Write Scope is not assigned.")
                 return False
 
-            split = id.split("/")
+            split = resource_id.split("/")
 
             if (len(split) > 7):
                 print("Request id too long")
@@ -111,7 +111,7 @@ def auth(introspect_response, id, call):
     return False
 
 
-def validation(id, token, call):
+def validation(resource_id, token, call):
     if (not is_valid_token(token)):
         print("Invalid Token")
         return Response(status=403)
@@ -123,8 +123,8 @@ def validation(id, token, call):
         if (token_expiry < datetime.datetime.now()):
             token_cache.pop(token)
         else:
-            if (auth(token_cache[token], id, call)):
-                symlink(id)
+            if (auth(token_cache[token], resource_id, call)):
+                symlink(resource_id)
                 return Response(status=200)
             return Response(status=403)
 
@@ -140,8 +140,8 @@ def validation(id, token, call):
     if (response.status_code != 200):
         return Response(status=response.status_code)
     token_cache[token] = response.json()
-    if (auth(response.json(), id, call)):
-        symlink(id)
+    if (auth(response.json(), resource_id, call)):
+        symlink(resource_id)
         return Response(status=200)
     return Response(status=403)
 
@@ -167,11 +167,11 @@ def on_hls_auth() -> Response:
         print("Invalid ID")
         return Response(status=403)
 
-    id = unquote_plus(path_split[2])
+    resource_id = unquote_plus(path_split[2])
     token = unquote_plus(cookie)
     call = 'play'
 
-    return validation(id, token, call)
+    return validation(resource_id, token, call)
 
 
 @app.route("/api/on-live-auth", methods=['POST'])
@@ -182,10 +182,10 @@ def on_live_auth() -> Response:
         Response: status_code(200,403)
     """
     token = request.form['token']
-    id = unquote_plus(request.form['name'])
+    resource_id = unquote_plus(request.form['name'])
     call = request.form['call']
 
-    return validation(id, token, call)
+    return validation(resource_id, token, call)
 
 
 if __name__ == '__main__':
