@@ -3,9 +3,9 @@ from __future__ import print_function
 __author__ = "Vishwajeet Mishra <vishwajeet@artpark.in>"
 
 # Purpose: Main application file
-import json
+import json,os
 from flask import Flask, request, Response, jsonify, render_template
-from urllib.parse import unquote_plus, quote_plus
+from urllib.parse import unquote_plus, quote_plus, urlparse, parse_qs
 from requests_pkcs12 import post
 import datetime
 import config
@@ -110,6 +110,17 @@ def is_valid_token(token, user=None):
 
     return True
 
+def symlink(id):
+    id_split = id.split('/')
+    dir = config.HLS_SCR_DIR
+    src = dir + '/' + quote_plus(id)
+    for segment in range(len(id_split)-1):
+        dir += '/' + id_split[segment]
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+    dir += '/' + id_split[-1]
+    if not os.path.islink(dir):
+        os.symlink(src,dir)
 
 def auth(introspect_response, id, call):
     if (not introspect_response or not introspect_response['request']):
@@ -142,18 +153,7 @@ def auth(introspect_response, id, call):
         return True
     return False
 
-
-@app.route('/api/on-hls-auth/', methods=['GET'])
-def on_hls_auth() -> Response:
-    uri = request.environ['HTTP_X_ORIGINAL_URI']
-    if (uri.count(".ts") > 0):
-        return Response(status=200)
-    uri_split = uri.split("index.m3u8?")
-    return Response(status=200)
-    args_split = uri_split[1].split("&")
-    token = unquote_plus(args_split[0].split('=')[1])
-    id = unquote_plus(args_split[1].split('=')[1])
-    call = 'play'
+def validation(id,token,call):
     if (not is_valid_token(token)):
         print("Invalid Token")
         return Response(status=403)
@@ -166,6 +166,7 @@ def on_hls_auth() -> Response:
             token_cache.pop(token)
         else:
             if (auth(token_cache[token], id, call)):
+                symlink(id)
                 return Response(status=200)
             return Response(status=403)
 
@@ -179,15 +180,32 @@ def on_hls_auth() -> Response:
         pkcs12_password=''
     )
     if (response.status_code != 200):
-        print(response.status_code)
         return Response(status=response.status_code)
     token_cache[token] = response.json()
     if (auth(response.json(), id, call)):
+        symlink(id)
         return Response(status=200)
     return Response(status=403)
 
-    return Response(status=200)
-
+@app.route('/api/on-hls-auth', methods=['GET'])
+def on_hls_auth() -> Response:
+    """
+        API to authenticate on_hls_subcription
+        :return:
+            Response: status_code(200,403)
+        """
+    uri = urlparse(request.environ['HTTP_X_ORIGINAL_URI'])
+    cookie = request.environ['HTTP_X_ORIGINAL_HEADER']
+    path_split = uri.path.split('/')
+    id=unquote_plus(path_split[2])
+    query = parse_qs(uri.query)
+    token = ''
+    if 'token' in query:
+        token = unquote_plus(query['token'][0])
+    else:
+        token = unquote_plus(cookie)
+    call = 'play'
+    return validation(id,token,call)
 
 @app.route("/api/on-live-auth", methods=['POST'])
 def on_live_auth() -> Response:
@@ -199,48 +217,15 @@ def on_live_auth() -> Response:
     print(request.form, file=sys.stderr)
     token = request.form['token']
     id = unquote_plus(request.form['name'])
-    print(token)
-    print(id)
     call = request.form['call']
 
-    if (not is_valid_token(token)):
-        print("Invalid Token")
-        return Response(status=403)
-
-    if (token in token_cache):
-
-        token_expiry = datetime.datetime.strptime(token_cache[token]['expiry'], '%Y-%m-%dT%H:%M:%S.%fZ')
-
-        if (token_expiry < datetime.datetime.now()):
-            token_cache.pop(token)
-        else:
-            if (auth(token_cache[token], id, call)):
-                return Response(status=200)
-            return Response(status=403)
-
-    body = {'token': token}
-
-    response = post(
-        url=config.INTROSPECT_URL,
-        headers={"content-type": "application/json"},
-        data=json.dumps(body),
-        pkcs12_filename=config.SERVER_CERTIFICATE,
-        pkcs12_password=''
-    )
-    if (response.status_code != 200):
-        print(response.status_code)
-        return Response(status=response.status_code)
-    token_cache[token] = response.json()
-    if (auth(response.json(), id, call)):
-        return Response(status=200)
-    return Response(status=403)
+    return validation(id,token,call)
 
 
 @app.route("/", methods=['GET'])
 def welcome() -> Response:
     token = quote_plus(request.args.get('token'))
     id = quote_plus(request.args.get('id'))
-    print(id, token, file=sys.stderr)
     return render_template('index.html', token=token, id=id)
 
 

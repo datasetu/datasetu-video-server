@@ -11,6 +11,7 @@ services:
       - "3002:3002"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./index.html:/usr/local/nginx/html/index.html
       - .:/root/datasetu-video-server/
 
   auth:
@@ -18,7 +19,6 @@ services:
     container_name: auth
     hostname: auth
     restart: on-failure
-    ports:
-      - "3001:3001"
     volumes:
       - ./auth-backend:/root/auth-backend
+      - .:/root/datasetu-video-server/
