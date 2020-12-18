@@ -1,5 +1,5 @@
 *.pem
-*.pem.12
+*.pem.p12
 record/*
 storage/*
 live/*

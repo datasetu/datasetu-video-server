@@ -81,12 +81,12 @@ def symlink(resource_id):
 
 def auth(introspect_response, resource_id, call):
     if (not introspect_response or not introspect_response['request']):
-        print("Request not found in body.")
+        print("Request not found in body.",file=sys.stderr)
         return False
 
     for r in introspect_response['request']:
         if (not r['scopes']):
-            print("Scopes not found in body.")
+            print("Scopes not found in body.",file=sys.stderr)
             return False
 
         if (r['id'] != resource_id):
@@ -94,17 +94,17 @@ def auth(introspect_response, resource_id, call):
 
         if (call == 'play'):
             if ("read" not in r['scopes']):
-                print("Read scope is not assigned.")
+                print("Read scope is not assigned.",file=sys.stderr)
                 return False
         else:
             if ("write" not in r['scopes']):
-                print("Write Scope is not assigned.")
+                print("Write Scope is not assigned.",file=sys.stderr)
                 return False
 
             split = resource_id.split("/")
 
             if (len(split) > 7):
-                print("Request id too long")
+                print("Request id too long",file=sys.stderr)
                 return False
 
         return True
@@ -113,7 +113,7 @@ def auth(introspect_response, resource_id, call):
 
 def validation(resource_id, token, call):
     if (not is_valid_token(token)):
-        print("Invalid Token")
+        print("Invalid Token",file=sys.stderr)
         return Response(status=403)
 
     if (token in token_cache):
@@ -152,23 +152,22 @@ def on_hls_auth() -> Response:
         API to authenticate on_hls_subcription
         :return:
             Response: status_code(200,403)
-        """
-    if ('HTTP_X_ORIGINAL_URI' not in request.environ
-        or 'HTTP_X_ORIGINAL_HEADER' not in request.environ
-        or len(request.environ['HTTP_X_ORIGINAL_HEADER']) == 0):
+    """
+    if ('HTTP_URL' not in request.environ
+        or 'HTTP_TOKEN' not in request.environ
+        or len(request.environ['HTTP_TOKEN']) == 0):
         print('Invalid Input')
         return Response(status=403)
 
-    uri = urlparse(request.environ['HTTP_X_ORIGINAL_URI'])
-    cookie = request.environ['HTTP_X_ORIGINAL_HEADER']
+    uri = urlparse(request.environ['HTTP_URL'])
     path_split = uri.path.split('/')
 
     if len(path_split) != 4:
-        print("Invalid ID")
+        print("Invalid ID",file=sys.stderr)
         return Response(status=403)
 
     resource_id = unquote_plus(path_split[2])
-    token = unquote_plus(cookie)
+    token = unquote_plus(request.environ['HTTP_TOKEN'])
     call = 'play'
 
     return validation(resource_id, token, call)
