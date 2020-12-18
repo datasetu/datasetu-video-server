@@ -3,7 +3,7 @@ from __future__ import print_function
 __author__ = "Vishwajeet Mishra <vishwajeet@artpark.in>"
 
 # Purpose: Main application file
-import json,os
+import json, os
 from flask import Flask, request, Response, jsonify, render_template
 from urllib.parse import unquote_plus, quote_plus, urlparse, parse_qs
 from requests_pkcs12 import post
@@ -14,51 +14,6 @@ import sys
 app = Flask(__name__, template_folder='.')
 
 token_cache = {}
-
-
-def is_valid_email(email):
-    if (not email or type(email) == str):
-        return False
-
-    if (len(email) < 5 or len(email) > 64):
-        return False
-
-    # reject email ids starting with invalid chars
-    invalid_start_chars = ".-_@"
-
-    if (invalid_start_chars.index(email[0]) != -1):
-        return False
-
-    split = email.split("@")
-
-    if (len(split) != 2):
-        return False
-
-    user = split[0]  # the login email
-
-    if (len(user) == 0 or len(user) > 30):
-        return False
-
-    num_dots = 0
-
-    for chr in email:
-
-        if (
-                (chr >= "a" and chr <= "z") or
-                (chr >= "A" and chr <= "Z") or
-                (chr >= "0" and chr <= "9") or
-                chr == "-" or chr == "_" or chr == "@"):
-            continue
-        if (chr == "."):
-            num_dots += 1
-        else:
-            return False
-
-    if (num_dots < 1):
-        return False
-
-    return True
-
 
 def is_string_safe(string, exceptions=""):
     if (not string or type(string) != str):
@@ -102,25 +57,27 @@ def is_valid_token(token, user=None):
     if (len(random_hex) != config.TOKEN_LEN_HEX):
         return False
 
-    # if (user and user != issued_to):
-    # 	return False	# token was not issued to this user
-
-    # if (not is_valid_email(issued_to)):
-    # 	return False
-
     return True
+
 
 def symlink(id):
     id_split = id.split('/')
+
     dir = config.HLS_SCR_DIR
+
     src = dir + '/' + quote_plus(id)
-    for segment in range(len(id_split)-1):
+
+    for segment in range(len(id_split) - 1):
         dir += '/' + id_split[segment]
+
         if not os.path.exists(dir):
             os.makedirs(dir)
+
     dir += '/' + id_split[-1]
+
     if not os.path.islink(dir):
-        os.symlink(src,dir)
+        os.symlink(src, dir)
+
 
 def auth(introspect_response, id, call):
     if (not introspect_response or not introspect_response['request']):
@@ -153,7 +110,8 @@ def auth(introspect_response, id, call):
         return True
     return False
 
-def validation(id,token,call):
+
+def validation(id, token, call):
     if (not is_valid_token(token)):
         print("Invalid Token")
         return Response(status=403)
@@ -187,6 +145,7 @@ def validation(id,token,call):
         return Response(status=200)
     return Response(status=403)
 
+
 @app.route('/api/on-hls-auth', methods=['GET'])
 def on_hls_auth() -> Response:
     """
@@ -194,18 +153,26 @@ def on_hls_auth() -> Response:
         :return:
             Response: status_code(200,403)
         """
+    if ('HTTP_X_ORIGINAL_URI' not in request.environ
+        or 'HTTP_X_ORIGINAL_HEADER' not in request.environ
+        or len(request.environ['HTTP_X_ORIGINAL_HEADER']) == 0):
+        print('Invalid Input')
+        return Response(status=403)
+
     uri = urlparse(request.environ['HTTP_X_ORIGINAL_URI'])
     cookie = request.environ['HTTP_X_ORIGINAL_HEADER']
     path_split = uri.path.split('/')
-    id=unquote_plus(path_split[2])
-    query = parse_qs(uri.query)
-    token = ''
-    if 'token' in query:
-        token = unquote_plus(query['token'][0])
-    else:
-        token = unquote_plus(cookie)
+
+    if len(path_split) != 4:
+        print("Invalid ID")
+        return Response(status=403)
+
+    id = unquote_plus(path_split[2])
+    token = unquote_plus(cookie)
     call = 'play'
-    return validation(id,token,call)
+
+    return validation(id, token, call)
+
 
 @app.route("/api/on-live-auth", methods=['POST'])
 def on_live_auth() -> Response:
@@ -214,19 +181,11 @@ def on_live_auth() -> Response:
     :return:
         Response: status_code(200,403)
     """
-    print(request.form, file=sys.stderr)
     token = request.form['token']
     id = unquote_plus(request.form['name'])
     call = request.form['call']
 
-    return validation(id,token,call)
-
-
-@app.route("/", methods=['GET'])
-def welcome() -> Response:
-    token = quote_plus(request.args.get('token'))
-    id = quote_plus(request.args.get('id'))
-    return render_template('index.html', token=token, id=id)
+    return validation(id, token, call)
 
 
 if __name__ == '__main__':
