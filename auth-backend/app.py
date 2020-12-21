@@ -47,9 +47,8 @@ def is_valid_token(token, user=None):
     if (len(split) != 2):
         return False
 
-    issued_by = split[0]
-    # issued_to		= split[1]
-    random_hex = split[1]
+    issued_by	= split[0]
+    random_hex	= split[1]
 
     if (issued_by != config.AUTH_SERVER_NAME):
         return False
@@ -63,7 +62,7 @@ def is_valid_token(token, user=None):
 def symlink(resource_id):
     resource_id_split = resource_id.split('/')
 
-    hls_src_dir = config.HLS_SCR_DIR
+    hls_src_dir = "."
 
     src = hls_src_dir + '/' + quote_plus(resource_id)
 
@@ -186,6 +185,39 @@ def on_live_auth() -> Response:
 
     return validation(resource_id, token, call)
 
+def drop_priv():
+#{
+    if os.geteuid() == 0:
+        print("WARNING: You are not running the server as root")
+        return
+
+    uid = pwd.getpwnam(config.UNPRIVILEGED_USER).pw_uid
+    gid = pwd.getpwnam(config.UNPRIVILEGED_USER).pw_gid
+
+    jail = config.HLS_SCR_DIR
+
+    os.chmod(jail,stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH )
+
+    try:
+        os.chroot(jail)
+        os.chdir("/")
+    except Exception as e:
+        print("*** Failed to chroot",e)
+        sys.exit(-1)
+
+    try:
+        os.setgid(gid)
+    except Exception as e:
+        print("*** Failed to setgid",e)
+        sys.exit(-1)
+
+    try:
+        os.setuid(uid)
+    except Exception as e:
+        print("*** Failed to setuid",e)
+        sys.exit(-1)
+#}
 
 if __name__ == '__main__':
-    app.run(threaded=True, port=3001, host='0.0.0.0')
+    drop_priv()
+    app.run(threaded=True, port=3001, host='127.0.0.1')
