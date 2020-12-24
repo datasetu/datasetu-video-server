@@ -1,5 +1,4 @@
-flask
-requests
-datetime
-requests-pkcs12
-config
+Flask==1.1.2
+requests-pkcs12==1.9
+DateTime==4.3
+watchdog==1.0.2

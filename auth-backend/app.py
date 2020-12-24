@@ -10,6 +10,45 @@ from requests_pkcs12 import post
 import datetime
 import config
 import sys
+import watchdog.events
+import watchdog.observers
+import time
+
+
+class Handler(watchdog.events.PatternMatchingEventHandler):
+    def __init__(self):
+        # Set the patterns for PatternMatchingEventHandler
+        watchdog.events.PatternMatchingEventHandler.__init__(self, patterns=['*.flv'],
+                                                             ignore_directories=True, case_sensitive=False)
+
+    def on_created(self, event):
+        src = event.src_path
+
+        if "%252F" not in src:
+            return
+
+        record_name = src.split("record/")[1]
+        target = config.RECORD_TAR_DIR
+        record_name_split = record_name.split("%252F")
+
+        for segment in range(len(record_name_split) - 1):
+            target += "/" + record_name_split[segment]
+
+            if not os.path.exists(target):
+                os.makedirs(target)
+
+        recording_unique_id_split = record_name_split[-1].split("-")
+
+        if len(recording_unique_id_split) == 2:
+            target += '/' + recording_unique_id_split[0]
+
+            if not os.path.exists(target):
+                os.makedirs(target)
+
+            target += '/' + recording_unique_id_split[1]
+
+            if not os.path.islink(target):
+                os.symlink(src, target)
 
 app = Flask(__name__, template_folder='.')
 
@@ -188,4 +227,9 @@ def on_live_auth() -> Response:
 
 
 if __name__ == '__main__':
+    src_path = config.RECORD_SCR_DIR
+    event_handler = Handler()
+    observer = watchdog.observers.Observer()
+    observer.schedule(event_handler, path=src_path, recursive=True)
+    observer.start()
     app.run(threaded=True, port=3001, host='0.0.0.0')

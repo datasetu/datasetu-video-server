@@ -1,4 +1,4 @@
-from 	alpine:latest
+from 	alpine:3.12.3
 
 label 	maintainer="Poorna Chandra Tejasvi <pct@artpark.in"
 

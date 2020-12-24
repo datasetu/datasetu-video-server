@@ -19,7 +19,7 @@
 			  document.cookie = "token="+token;
 			  if(Hls.isSupported()) {
 				var hls = new Hls();
-				hls.loadSource('https://video.datasetu.org:3002/live/'+id+'/index.m3u8');
+				hls.loadSource('https://video.datasetu.org:3002/rtmp+hls/'+id+'/index.m3u8');
 				hls.attachMedia(video);
 				hls.on(Hls.Events.MANIFEST_PARSED,function() {
 				  video.play();
