@@ -1,0 +1,35 @@
+version: "3"
+
+volumes:
+  pg-data:
+
+services:
+  auth:
+    image: datasetu/auth-server
+    container_name: auth.local
+    hostname: auth.local
+    ports:
+      - "8443:443"
+    restart: on-failure
+    networks:
+      - video-server-net
+    volumes:
+      - ../datasetu-auth-server/:/home/datasetu-auth-server/
+      - ../node-aperture/:/home/datasetu-auth-server/node-aperture/
+    environment:
+      - NODE_ENV=development
+    env_file:
+      - video-server.conf
+
+  postgres:
+    image: postgres:13-alpine
+    container_name: postgres
+    hostname: postgres
+    restart: on-failure
+    networks:
+      - video-server-net
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+      - ../datasetu-auth-server/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    env_file:
+      - video-server.conf

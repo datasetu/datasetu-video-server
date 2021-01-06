@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -ae
+
+#Initialise few constants
+CONF_FILE="video-server.conf"
+
+#Read video-server.conf
+source video-server.conf
+
+if [ "$(uname)" == "Darwin" ]; then
+	generate_key="head /dev/urandom | shasum | cut -f1 -d' '"
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+	generate_key="head /dev/urandom | sha1sum | cut -f1 -d' '"
+else
+	echo "OS not supported"
+	exit 1
+fi
+
+if [ -z $POSTGRES_PASSWORD ]; then
+
+	POSTGRES_PASSWORD="$(eval $generate_key)"
+	sed -i'.bak' -e "s/POSTGRES_PASSWORD=/POSTGRES_PASSWORD=$POSTGRES_PASSWORD/" $CONF_FILE
+fi
+
+docker-compose -f docker-compose.yml -f docker-compose.auth.yml down --remove-orphans -v
+
+DOCKER_OPTS=""
+
+if [ $AUTH_SERVER == "auth.local" ]; then
+	DOCKER_OPTS=$DOCKER_OPTS" -f docker-compose.auth.yml"
+fi
+
+docker-compose -f docker-compose.yml $DOCKER_OPTS up --remove-orphans -d
+
+rm -f video-server.conf.bak

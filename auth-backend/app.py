@@ -5,14 +5,13 @@ __author__ = "Vishwajeet Mishra <vishwajeet@artpark.in>"
 # Purpose: Main application file
 import json, os
 from flask import Flask, request, Response, jsonify, render_template
-from urllib.parse import unquote_plus, quote_plus, urlparse, parse_qs
+from urllib.parse import unquote_plus, quote_plus, urlparse
 from requests_pkcs12 import post
 import datetime
 import config
 import sys
 import watchdog.events
 import watchdog.observers
-import time
 
 
 class Handler(watchdog.events.PatternMatchingEventHandler):
@@ -102,7 +101,7 @@ def is_valid_token(token, user=None):
 def symlink(resource_id):
     resource_id_split = resource_id.split('/')
 
-    hls_src_dir = config.HLS_SCR_DIR
+    hls_src_dir = config.HLS_SRC_DIR
 
     src = hls_src_dir + '/' + quote_plus(resource_id)
 
@@ -174,7 +173,8 @@ def validation(resource_id, token, call):
         headers={"content-type": "application/json"},
         data=json.dumps(body),
         pkcs12_filename=config.SERVER_CERTIFICATE,
-        pkcs12_password=''
+        pkcs12_password='',
+        verify=False
     )
     if (response.status_code != 200):
         return Response(status=response.status_code)
@@ -227,7 +227,7 @@ def on_live_auth() -> Response:
 
 
 if __name__ == '__main__':
-    src_path = config.RECORD_SCR_DIR
+    src_path = config.RECORD_SRC_DIR
     event_handler = Handler()
     observer = watchdog.observers.Observer()
     observer.schedule(event_handler, path=src_path, recursive=True)

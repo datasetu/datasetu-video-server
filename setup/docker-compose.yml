@@ -1,0 +1,36 @@
+version: "3"
+
+networks:
+  video-server-net:
+    driver: bridge
+
+services:
+  nginx:
+    image: datasetu/video-server
+    container_name: nginx
+    hostname: nginx
+    restart: on-failure
+    networks:
+      - video-server-net
+    ports:
+      - "1935:1935"
+      - "3002:3002"
+    volumes:
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ../nginx/index.html:/usr/local/nginx/html/index.html
+      - ../:/root/datasetu-video-server/
+    env_file:
+      - video-server.conf
+
+  authenticator:
+    image: datasetu/vs-auth-backend
+    container_name: authenticator
+    hostname: authenticator
+    restart: on-failure
+    networks:
+      - video-server-net
+    volumes:
+      - ../auth-backend:/root/auth-backend
+      - ../:/root/datasetu-video-server/
+    env_file:
+      - video-server.conf

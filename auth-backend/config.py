@@ -1,12 +1,12 @@
+import os
+
 MAX_SAFE_STRING_LEN	= 512
-AUTH_SERVER_NAME	= "auth.datasetu.org"
+AUTH_SERVER_NAME	= os.environ["AUTH_SERVER"]
 TOKEN_LEN		= 16
 TOKEN_LEN_HEX		= 32
-INTROSPECT_URL		= "https://auth.datasetu.org/auth/v1/token/introspect"
-SERVER_CERTIFICATE	= "certificate.pem.p12"
-SSL_CERTIFICATE = "certificate.pem"
-SSL_KEY = "key.pem"
-RECORD_SCR_DIR = '/root/datasetu-video-server/record/'
-RECORD_TAR_DIR = '/root/datasetu-video-server/record'
-HLS_SCR_DIR = '/root/datasetu-video-server/storage/rtmp+hls'
+INTROSPECT_URL		= "https://"+ AUTH_SERVER_NAME + "/auth/v1/token/introspect"
+SERVER_CERTIFICATE	= "resource-server.p12"
+RECORD_SRC_DIR          = '/root/datasetu-video-server/nginx/record/'
+RECORD_TAR_DIR          = '/root/datasetu-video-server/nginx/record'
+HLS_SRC_DIR             = '/root/datasetu-video-server/nginx/storage/rtmp+hls'
 
