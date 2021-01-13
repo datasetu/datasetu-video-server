@@ -42,7 +42,6 @@ if __name__ == '__main__':
     test_video_server.test_hd_video(token)
     test_video_server.test_load(token)
     test_video_server.test_hls(token)
-    os.remove('Asha _ ARTPARK _ Bengaluru Tech Summit 2020-wKWldDnCZQ0.webm')
-    os.remove(
-        'Talk by Prof  Bharadwaj Amrutur on AI & Robotics Technologies Park ARTPark   a new IISc initiative-QXOXIMgHgZ0.mkv')
-    os.remove('Epic Time Lapse Footage in 4K-od5nla42Jvc.webm')
+    os.remove('wKWldDnCZQ0.webm')
+    os.remove('QXOXIMgHgZ0.mkv')
+    os.remove('od5nla42Jvc.webm')
