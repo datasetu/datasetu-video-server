@@ -2,7 +2,7 @@
 
 shell="/bin/bash"
 
-if [ $1 == "auth" ];
+if [ $1 == "authenticator" ];
 then
 	shell="/bin/ash"
 fi
