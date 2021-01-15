@@ -17,7 +17,7 @@ jobs:
         architecture: 'x64'
       
     - name: Install video-server
-      run: ./setup/install
+      run: cd setup && ./install
 
     - name: Run tests
       run:  cd ./tests/ && python3 test_init.py
