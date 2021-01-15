@@ -15,7 +15,10 @@ jobs:
       with:
         python-version: '3.8' # Version range or exact version of a Python version to use, using SemVer's version range syntax
         architecture: 'x64'
-      
+
+    - name: Install packages
+      run: sudo apt-get install python3-setuptools && sudo python3 -m pip install requests urllib3 youtube_dl watchdog moviepy
+
     - name: Install video-server
       run: cd setup && ./install
 
