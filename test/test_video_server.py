@@ -164,7 +164,7 @@ def test_load(token):
         ['ffplay', '-i', "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[2] + "?token=" + token],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    print('load test passed!')
+    print('load test passed!', file=sys.stderr)
 
 
 def test_hls(token):
@@ -172,9 +172,8 @@ def test_hls(token):
                       "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    sleep(60)
-
+    sleep(120)
     response = requests.get('https://video.datasetu.org:3002/rtmp+hls/' + cnf.ids[0] + '/index.m3u8',
                             cookies={'token': token}, verify=False)
     assert (response.status_code == 200)
-    print('HLS test passed!')
+    print('HLS test passed!', file=sys.stderr)

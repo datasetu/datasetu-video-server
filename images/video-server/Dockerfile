@@ -6,10 +6,14 @@ LABEL maintainer="Sebastian Ramirez <tiangolo@gmail.com>, Poorna Chandra Tejasvi
 ENV NGINX_VERSION nginx-1.19.5
 ENV NGINX_RTMP_MODULE_VERSION 1.2.1
 
+copy 	requirements.txt /
+
 # Install dependencies
 RUN apt-get update && \
-    apt-get install -y ca-certificates openssl libssl-dev && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y ca-certificates openssl libssl-dev python3-pip && \
+    rm -rf /var/lib/apt/lists/* && \
+    pip3 install --upgrade pip && \
+	pip3 install -r requirements.txt
 
 # Download and decompress Nginx
 RUN mkdir -p /tmp/build/nginx && \

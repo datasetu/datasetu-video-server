@@ -23,6 +23,9 @@ if [ -z $POSTGRES_PASSWORD ]; then
 	sed -i'.bak' -e "s/POSTGRES_PASSWORD=/POSTGRES_PASSWORD=$POSTGRES_PASSWORD/" $CONF_FILE
 fi
 
+#Generate all necessary certificates
+(cd ../datasetu-ca && ./gen-certs.sh)
+
 docker-compose -f docker-compose.yml -f docker-compose.auth.yml down --remove-orphans -v
 
 DOCKER_OPTS=""

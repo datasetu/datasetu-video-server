@@ -20,7 +20,7 @@ rm -f	../datasetu-auth-server/https-key.pem		\
     	../datasetu-auth-server/https-certificate.pem	\
     	../datasetu-auth-server/ca.datasetu.org.crt	\
     	../datasetu-auth-server/ca.key			\
-    	../nginx/nginx-ssl.pem				\	
+    	../nginx/nginx-ssl.pem				\
     	../nginx/nginx-ssl.key.pem			\
     	../auth-backend/resource-server.p12		2>/dev/null
 
