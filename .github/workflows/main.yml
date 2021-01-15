@@ -17,7 +17,7 @@ jobs:
         architecture: 'x64'
 
     - name: Install packages
-      run: sudo apt-get install python3-setuptools && sudo -H python3 -m pip install requests urllib3 youtube_dl watchdog moviepy
+      run: sudo apt-get install python3-setuptools && sudo -H pip3 install -r images/video-server/requirements.txt
 
     - name: Install video-server
       run: cd setup && ./install
