@@ -1,5 +1,10 @@
 *.pem
-*.pem.p12
-record/*
-storage/*
-live/*
+*.p12
+*.srl
+nginx/record/*
+nginx/storage/*
+*webm
+*.mp4
+*.csr
+.idea/
+*/__pycache__/
