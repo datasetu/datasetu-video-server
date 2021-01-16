@@ -1,4 +1,3 @@
-wheel
 watchdog
 youtube-dl
 moviepy
