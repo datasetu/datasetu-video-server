@@ -4,6 +4,8 @@ import test_config as cnf, test_video_server
 from time import sleep
 
 def auth_setup():
+
+    sleep(5)
     resp = requests.post(
         url=cnf.provider_url,
         verify=False,
@@ -11,6 +13,7 @@ def auth_setup():
         data=cnf.provider_body,
         headers={"content-type": "application/json"}
     )
+
     sleep(5)
     resp = requests.post(
         url=cnf.consumer_url,
