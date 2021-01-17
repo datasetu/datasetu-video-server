@@ -34,6 +34,7 @@ def test_token(token):
                                    "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     ffmpeg_stdout, ffmpeg_stderr = ffmpeg_out.communicate()
+    print(ffmpeg_stderr,file=sys.stderr)
     assert ('error' not in ffmpeg_stderr.decode('UTF-8'))
 
     ffmpeg_out1 = subprocess.Popen(['ffmpeg', '-i', cnf.video[1], '-f', 'flv',
@@ -171,8 +172,7 @@ def test_hls(token):
     subprocess.Popen(['ffmpeg', '-i', cnf.video[0], '-f', 'flv',
                       "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    sleep(120)
+    sleep(60)
     response = requests.get('https://video.datasetu.org:3002/rtmp+hls/' + cnf.ids[0] + '/index.m3u8',
                             cookies={'token': token}, verify=False)
     assert (response.status_code == 200)
