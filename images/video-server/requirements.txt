@@ -1,4 +1,3 @@
 watchdog
 youtube-dl
 moviepy
-urllib3
