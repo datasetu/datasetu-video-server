@@ -19,7 +19,7 @@ jobs:
       run: sudo pip3 install -r images/video-server/requirements.txt
 
     - name: Install video-server
-      run: cd setup && ./install && sudo echo "\n127.0.0.1       video.datasetu.org\n" >> /etc/hosts
+      run: cd setup && ./install && sudo sed -i "127.0.0.1  video.datasetu.org" /etc/hosts
 
     - name: Run tests
       run:  cd test && python3 test_init.py
