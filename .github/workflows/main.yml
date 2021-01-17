@@ -13,7 +13,7 @@ jobs:
         submodules: 'true'
 
     - name: Install python and required packages
-      run: sudo apt-get update && sudo apt-get -y install ca-certificates openssl libssl-dev python3-pip ffmpeg
+      run: sudo apt-get update && sudo apt-get -y install ca-certificates openssl libssl-dev python3-setuptools python3-pip ffmpeg
 
     - name: Install python libraries required for tests
       run: sudo pip3 install -r images/video-server/requirements.txt
