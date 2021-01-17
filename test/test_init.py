@@ -1,17 +1,17 @@
 import requests, sys, os, youtube_dl, json
 from urllib.parse import quote_plus
 import test_config as cnf, test_video_server
-
+from time import sleep
 
 def auth_setup():
-    requests.post(
+    resp = requests.post(
         url=cnf.provider_url,
         verify=False,
         cert=cnf.provider_credentials,
         data=cnf.provider_body,
         headers={"content-type": "application/json"}
     )
-
+    sleep(5)
     resp = requests.post(
         url=cnf.consumer_url,
         verify=False,
