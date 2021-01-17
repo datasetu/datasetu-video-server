@@ -13,7 +13,7 @@ jobs:
         submodules: 'true'
 
     - name: Install python and required packages
-      run: sudo apt-get -y install python3-setuptools build-essential libpq-dev python-dev python-pip python3-dev python3-pip python3-venv python3-wheel ffmpeg
+      run: sudo apt-get -y install ca-certificates openssl libssl-dev python3-pip python3-setuptools build-essential libpq-dev python-dev python-pip python3-dev python3-pip python3-venv python3-wheel ffmpeg
 
     - name: Install python libraries required for tests
       run: sudo python3 -m pip install -r images/video-server/requirements.txt
