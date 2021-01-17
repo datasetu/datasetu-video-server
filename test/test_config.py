@@ -4,7 +4,7 @@ ids = ["rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-cat
        "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-2",
        "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-3"]
 
-provider_url = 'https://auth.local:443/auth/v1/acl/set'
+provider_url = 'https://localhost:8443/auth/v1/acl/set'
 provider_certificate = '../datasetu-ca/provider/provider.pem'
 provider_key = '../datasetu-ca/provider/provider.key.pem'
 provider_credentials = (provider_certificate, provider_key)
@@ -17,7 +17,7 @@ provider_body = json.dumps(
     }
 )
 
-consumer_url = "https://auth.local:443/auth/v1/token"
+consumer_url = "https://localhost:8443/auth/v1/token"
 consumer_certificate = '../datasetu-ca/consumer/consumer.pem'
 consumer_key = '../datasetu-ca/consumer/consumer.key.pem'
 consumer_credentials = (consumer_certificate, consumer_key)
