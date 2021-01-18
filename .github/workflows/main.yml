@@ -24,8 +24,8 @@ jobs:
     - name: Install video-server
       run: cd setup && ./install
 
-    - name: Wait for video server to come up
-      run: cd test && ./wait.sh
+    - name: Checking logs
+      run: cd setup && ./logs nginx
 
     - name: Run tests
       run:  cd test && python3 test_init.py
