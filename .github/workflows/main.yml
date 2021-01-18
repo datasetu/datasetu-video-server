@@ -24,7 +24,7 @@ jobs:
     - name: Install video-server
       run: cd setup && ./install
 
-    -name: Wait for server up
+    - name: Wait for server to come up
       run: cd test && ./wait.sh
 
     - name: Run tests
