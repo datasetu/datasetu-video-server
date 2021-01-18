@@ -31,14 +31,14 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
 
 def test_token(token):
     ffmpeg_out = subprocess.Popen(['ffmpeg', '-i', cnf.video[0], '-f', 'flv',
-                                   "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
+                                   "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     ffmpeg_stdout, ffmpeg_stderr = ffmpeg_out.communicate()
     print(ffmpeg_stderr,file=sys.stderr)
     assert ('error' not in ffmpeg_stderr.decode('UTF-8'))
 
     ffmpeg_out1 = subprocess.Popen(['ffmpeg', '-i', cnf.video[1], '-f', 'flv',
-                                    "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[
+                                    "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[
                                         1] + "?token=~!@#$%^&*()_+}{[]:|;'\<>?,./`'" + token],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -46,13 +46,13 @@ def test_token(token):
     assert ('error' in ffmpeg_stderr.decode('UTF-8'))
 
     ffmpeg_out = subprocess.Popen(['ffmpeg', '-i', cnf.video[0], '-f', 'flv',
-                                   "rtmps://video.datasetu.org:1935/rtmp/" + cnf.ids[0] + "?token=" + token],
+                                   "rtmps://localhost:1935/rtmp/" + cnf.ids[0] + "?token=" + token],
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     ffmpeg_stdout, ffmpeg_stderr = ffmpeg_out.communicate()
     assert ('error' not in ffmpeg_stderr.decode('UTF-8'))
 
     ffmpeg_out1 = subprocess.Popen(['ffmpeg', '-i', cnf.video[1], '-f', 'flv',
-                                    "rtmps://video.datasetu.org:1935/rtmp/" + cnf.ids[
+                                    "rtmps://localhost:1935/rtmp/" + cnf.ids[
                                         1] + "?token=~!@#$%^&*()_+}{[]:|;'\<>?,./`'" + token],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -64,13 +64,13 @@ def test_token(token):
 
 def test_id(token):
     ffmpeg_out = subprocess.Popen(['ffmpeg', '-i', cnf.video[0], '-f', 'flv',
-                                   "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
+                                   "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     ffmpeg_stdout, ffmpeg_stderr = ffmpeg_out.communicate()
     assert ('error' not in ffmpeg_stderr.decode('UTF-8'))
 
     ffmpeg_out1 = subprocess.Popen(['ffmpeg', '-i', cnf.video[1], '-f', 'flv',
-                                    "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[
+                                    "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[
                                         1] + "~!@#$%^&*()_+}{[]:|;'\<>?,./`'?token=" + token],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -78,13 +78,13 @@ def test_id(token):
     assert ('error' in ffmpeg_stderr.decode('UTF-8'))
 
     ffmpeg_out = subprocess.Popen(['ffmpeg', '-i', cnf.video[0], '-f', 'flv',
-                                   "rtmps://video.datasetu.org:1935/rtmp/" + cnf.ids[0] + "?token=" + token],
+                                   "rtmps://localhost:1935/rtmp/" + cnf.ids[0] + "?token=" + token],
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     ffmpeg_stdout, ffmpeg_stderr = ffmpeg_out.communicate()
     assert ('error' not in ffmpeg_stderr.decode('UTF-8'))
 
     ffmpeg_out1 = subprocess.Popen(['ffmpeg', '-i', cnf.video[1], '-f', 'flv',
-                                    "rtmps://video.datasetu.org:1935/rtmp/" + cnf.ids[
+                                    "rtmps://localhost:1935/rtmp/" + cnf.ids[
                                         1] + "~!@#$%^&*()_+}{[]:|;'\<>?,./`'?token=" + token],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -101,14 +101,14 @@ def test_record_length(token):
     observer.schedule(event_handler, path=src_path, recursive=True)
     observer.start()
     ffmpeg_out = subprocess.Popen(['ffmpeg', '-i', cnf.video[0], '-f', 'flv',
-                                   "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
+                                   "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     ffmpeg_stdout, ffmpeg_stderr = ffmpeg_out.communicate()
 
 
 def test_hd_video(token):
     ffmpeg_out = subprocess.Popen(['ffmpeg', '-i', cnf.video[2], '-f', 'flv',
-                                   "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
+                                   "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     ffmpeg_stdout, ffmpeg_stderr = ffmpeg_out.communicate()
@@ -118,51 +118,51 @@ def test_hd_video(token):
 
 def test_load(token):
     subprocess.Popen(['ffmpeg', '-i', cnf.video[0], '-f', 'flv',
-                      "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
+                      "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     subprocess.Popen(['ffmpeg', '-i', cnf.video[1], '-f', 'flv',
-                      "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
+                      "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     subprocess.Popen(['ffmpeg', '-i', cnf.video[2], '-f', 'flv',
-                      "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
+                      "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     subprocess.Popen(
-        ['ffplay', '-i', "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
+        ['ffplay', '-i', "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     subprocess.Popen(
-        ['ffplay', '-i', "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
+        ['ffplay', '-i', "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     subprocess.Popen(
-        ['ffplay', '-i', "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
+        ['ffplay', '-i', "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     subprocess.Popen(
-        ['ffplay', '-i', "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[1] + "?token=" + token],
+        ['ffplay', '-i', "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[1] + "?token=" + token],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     subprocess.Popen(
-        ['ffplay', '-i', "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[1] + "?token=" + token],
+        ['ffplay', '-i', "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[1] + "?token=" + token],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     subprocess.Popen(
-        ['ffplay', '-i', "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[1] + "?token=" + token],
+        ['ffplay', '-i', "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[1] + "?token=" + token],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     subprocess.Popen(
-        ['ffplay', '-i', "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[2] + "?token=" + token],
+        ['ffplay', '-i', "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[2] + "?token=" + token],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     subprocess.Popen(
-        ['ffplay', '-i', "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[2] + "?token=" + token],
+        ['ffplay', '-i', "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[2] + "?token=" + token],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     subprocess.Popen(
-        ['ffplay', '-i', "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[2] + "?token=" + token],
+        ['ffplay', '-i', "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[2] + "?token=" + token],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     print('load test passed!', file=sys.stderr)
@@ -170,10 +170,10 @@ def test_load(token):
 
 def test_hls(token):
     subprocess.Popen(['ffmpeg', '-i', cnf.video[0], '-f', 'flv',
-                      "rtmps://video.datasetu.org:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
+                      "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     sleep(60)
-    response = requests.get('https://video.datasetu.org:3002/rtmp+hls/' + cnf.ids[0] + '/index.m3u8',
+    response = requests.get('https://localhost:3002/rtmp+hls/' + cnf.ids[0] + '/index.m3u8',
                             cookies={'token': token}, verify=False)
     assert (response.status_code == 200)
     print('HLS test passed!', file=sys.stderr)
