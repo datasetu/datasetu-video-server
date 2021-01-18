@@ -19,10 +19,13 @@ jobs:
       run: sudo apt-get update && sudo apt-get -y install ca-certificates openssl libssl-dev python3-setuptools python3-pip ffmpeg
 
     - name: Install python libraries required for tests
-      run: sudo cat /etc/ffserver.conf && sudo pip3 install -r images/video-server/requirements.txt
+      run: sudo pip3 install -r images/video-server/requirements.txt
 
     - name: Install video-server
       run: cd setup && ./install
+
+    -name: Wait for server up
+      run: cd test && ./wait.sh
 
     - name: Run tests
       run:  cd test && python3 test_init.py
