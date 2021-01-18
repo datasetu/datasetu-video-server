@@ -58,5 +58,7 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
 # Set up config file
 COPY nginx.conf /etc/nginx/nginx.conf
 
+RUN echo "127.0.0.1  video.datasetu.org" | tee -a /etc/hosts
+
 EXPOSE 1935
 CMD ["nginx", "-g", "daemon off;"]
