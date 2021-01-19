@@ -31,4 +31,4 @@ jobs:
       run:  cd test && python3 test_init.py
 
     - name: Run demo
-        run: cd test && bash demo
+      run: cd test && bash demo
