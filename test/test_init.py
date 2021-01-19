@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     token = quote_plus(response['token'])
     f = open("demo","w")
-    f.write('#!/bin/bash\n\nffmpeg -i '+cnf.video[0]+' -c:v libx264 -preset veryfast -maxrate 3000k -bufsize 6000k -pix_fmt yuv420p -g 50 -c:a aac -b:a 160k -ac 2 -ar 44100 -f flv "rtmps://localhost:1935/rtmp+hls/rbccps.org%2Fe096b3abef24b99383d9bd28e9b8c89cfd50be0b%2Fexample.com%2Ftest-category%2Ftest-resource-1?token='+token+'"\n')
+    f.write('#!/bin/bash\n\nffmpeg -i '+cnf.video[0]+' -filter_complex "[0:v]setpts=0.01*PTS[v];[0:a]atempo=100[a]" -map "[v]" -map "[a]" -f flv "rtmps://localhost:1935/rtmp+hls/rbccps.org%2Fe096b3abef24b99383d9bd28e9b8c89cfd50be0b%2Fexample.com%2Ftest-category%2Ftest-resource-1?token='+token+'"\n')
     f.close()
     # test_video_server.test_record_length(token)
     # test_video_server.test_token(token)
