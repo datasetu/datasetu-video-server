@@ -39,14 +39,11 @@ if __name__ == '__main__':
         cnf.ids[i] = quote_plus(cnf.ids[i])
 
     token = quote_plus(response['token'])
-    f = open("demo","w")
-    f.write('#!/bin/bash\n\nffmpeg -i '+cnf.video[0]+' -filter_complex "[0:v]setpts=0.5*PTS[v];[0:a]atempo=2[a]" -map "[v]" -map "[a]" -f flv "rtmps://localhost:1935/rtmp+hls/rbccps.org%2Fe096b3abef24b99383d9bd28e9b8c89cfd50be0b%2Fexample.com%2Ftest-category%2Ftest-resource-1?token='+token+'"\n')
-    f.close()
-    # test_video_server.test_record_length(token)
-    # test_video_server.test_token(token)
-    # test_video_server.test_id(token)
-    # test_video_server.test_hd_video(token)
-    # test_video_server.test_load(token)
-    # test_video_server.test_hls(token)
-    # for i in cnf.video:
-    #     os.remove(i)
+    test_video_server.test_record_length(token)
+    test_video_server.test_token(token)
+    test_video_server.test_id(token)
+    test_video_server.test_hd_video(token)
+    test_video_server.test_load(token)
+    test_video_server.test_hls(token)
+    for i in cnf.video:
+        os.remove(i)

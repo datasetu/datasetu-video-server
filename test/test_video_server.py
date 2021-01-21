@@ -34,7 +34,6 @@ def test_token(token):
                                    "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     ffmpeg_stdout, ffmpeg_stderr = ffmpeg_out.communicate()
-    print(ffmpeg_stderr,file=sys.stderr)
     assert ('error' not in ffmpeg_stderr.decode('UTF-8'))
 
     ffmpeg_out1 = subprocess.Popen(['ffmpeg', '-i', cnf.video[1], '-f', 'flv',
@@ -104,7 +103,6 @@ def test_record_length(token):
                                    "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     ffmpeg_stdout, ffmpeg_stderr = ffmpeg_out.communicate()
-
 
 def test_hd_video(token):
     ffmpeg_out = subprocess.Popen(['ffmpeg', '-i', cnf.video[2], '-f', 'flv',
