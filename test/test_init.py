@@ -39,11 +39,11 @@ if __name__ == '__main__':
         cnf.ids[i] = quote_plus(cnf.ids[i])
 
     token = quote_plus(response['token'])
-    test_video_server.test_record_length(token)
+    # test_video_server.test_record_length(token)
     test_video_server.test_token(token)
     test_video_server.test_id(token)
     test_video_server.test_hd_video(token)
     test_video_server.test_load(token)
-    test_video_server.test_hls(token)
+    # test_video_server.test_hls(token)
     for i in cnf.video:
         os.remove(i)
