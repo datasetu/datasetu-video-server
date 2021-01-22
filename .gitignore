@@ -5,6 +5,7 @@ nginx/record/*
 nginx/storage/*
 *webm
 *.mp4
+*.mkv
 *.csr
 .idea/
 */__pycache__/
