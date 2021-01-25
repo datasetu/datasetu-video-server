@@ -39,7 +39,7 @@ if __name__ == '__main__':
         cnf.ids[i] = quote_plus(cnf.ids[i])
 
     token = quote_plus(response['token'])
-    # test_video_server.test_record_length(token)
+    test_video_server.test_record_length(token)
     test_video_server.test_token(token)
     test_video_server.test_id(token)
     test_video_server.test_hd_video(token)

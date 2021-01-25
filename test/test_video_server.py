@@ -22,6 +22,7 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
         if "%252F" not in src:
             return
         assert (len(src) > 0)
+        #TODO: Find a way to remove this
         sleep(60)
         assert (self.get_record_length(src) == self.get_record_length(cnf.video[0]))
         print("Recording test passed!", file=sys.stderr)
@@ -30,12 +31,14 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
 
 
 def test_token(token):
+    #TODO: Do not hardcode URLs
     ffmpeg_out = subprocess.Popen(['ffmpeg', '-i', cnf.video[0], '-f', 'flv',
                                    "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     ffmpeg_stdout, ffmpeg_stderr = ffmpeg_out.communicate()
     assert ('error' not in ffmpeg_stderr.decode('UTF-8'))
 
+    #TODO: Use random characters
     ffmpeg_out1 = subprocess.Popen(['ffmpeg', '-i', cnf.video[1], '-f', 'flv',
                                     "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[
                                         1] + "?token=~!@#$%^&*()_+}{[]:|;'\<>?,./`'" + token],
@@ -102,9 +105,13 @@ def test_record_length(token):
     ffmpeg_out = subprocess.Popen(['ffmpeg', '-i', cnf.video[0], '-f', 'flv',
                                    "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    #TODO: These variables are not used?
     ffmpeg_stdout, ffmpeg_stderr = ffmpeg_out.communicate()
 
 def test_hd_video(token):
+    #TODO: Check resolution, sizew, duration etc
+
     ffmpeg_out = subprocess.Popen(['ffmpeg', '-i', cnf.video[2], '-f', 'flv',
                                    "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -115,6 +122,9 @@ def test_hd_video(token):
 
 
 def test_load(token):
+
+    #TODO: Use a loop
+    #TODO: Use assert statements
     subprocess.Popen(['ffmpeg', '-i', cnf.video[0], '-f', 'flv',
                       "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -170,6 +180,8 @@ def test_hls(token):
     subprocess.Popen(['ffmpeg', '-i', cnf.video[0], '-f', 'flv',
                       "rtmps://localhost:1935/rtmp+hls/" + cnf.ids[0] + "?token=" + token],
                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    #TODO: Find a way to remove this
     sleep(60)
     response = requests.get('https://localhost:3002/rtmp+hls/' + cnf.ids[0] + '/index.m3u8',
                             cookies={'token': token}, verify=False)
