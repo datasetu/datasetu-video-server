@@ -1,25 +1,32 @@
-import requests, sys, os, youtube_dl, json
+import requests, youtube_dl, json, random
 from urllib.parse import quote_plus
 import test_config as cnf, test_video_server
-from time import sleep
+
 
 def auth_setup():
-
-    sleep(5)
-    resp = requests.post(
-        url=cnf.provider_url,
-        verify=False,
-        cert=cnf.provider_credentials,
-        data=cnf.provider_body,
-        headers={"content-type": "application/json"}
+    ACL_SET_POLICY = ""
+    #TODO : Check for this unusual behavior
+    for i in range(1, random.randint(3, 12)):
+        ACL_SET_POLICY += "consumer@iisc.ac.in can access example.com/test-category/test-resource-" + str(i) + " for 1 month;"
+    ACL_SET_POLICY += "consumer@iisc.ac.in can access example.com/test-category/test-resource.public for 1 month"
+    ACL_SET_BODY = json.dumps(
+        {
+            "policy": ACL_SET_POLICY
+        }
+    )
+    requests.post(
+        url = cnf.ACL_SET_ENDPOINT,
+        verify = False,
+        cert = cnf.ACL_SET_CREDENTIALS,
+        data = ACL_SET_BODY,
+        headers = {"content-type": "application/json"}
     )
 
-    sleep(5)
     resp = requests.post(
-        url=cnf.consumer_url,
+        url=cnf.REQUEST_TOKEN_ENDPOINT,
         verify=False,
-        cert=cnf.consumer_credentials,
-        data=cnf.consumer_body,
+        cert=cnf.REQUEST_TOKEN_CREDENTIALS,
+        data=cnf.REQUEST_TOKEN_BODY,
         headers={"content-type": "application/json", "Host": "auth.local"}
     )
     return resp.json()
@@ -28,22 +35,25 @@ def auth_setup():
 def download_videos():
     ydl_opts = {'outtmpl': '%(id)s.%(ext)s'}
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download(['https://www.youtube.com/watch?v=wKWldDnCZQ0', 'https://www.youtube.com/watch?v=QXOXIMgHgZ0',
-                      'https://www.youtube.com/watch?v=od5nla42Jvc'])
+        ydl.download([cnf.YOUTUBE_URL_1,cnf.YOUTUBE_URL_2,cnf.YOUTUBE_URL_3])
 
 
 if __name__ == '__main__':
+
     response = auth_setup()
-    download_videos()
-    for i in range(len(cnf.ids)):
-        cnf.ids[i] = quote_plus(cnf.ids[i])
+    # download_videos()
+    cnf.RESOURCE_ID[1] = quote_plus(cnf.RESOURCE_ID[1])
+    cnf.RESOURCE_ID[2] = quote_plus(cnf.RESOURCE_ID[2])
+    cnf.RESOURCE_ID[3] = quote_plus(cnf.RESOURCE_ID[3])
 
     token = quote_plus(response['token'])
-    test_video_server.test_record_length(token)
+
     test_video_server.test_token(token)
-    test_video_server.test_id(token)
-    test_video_server.test_hd_video(token)
-    test_video_server.test_load(token)
+    # test_video_server.test_id(token)
+    # test_video_server.test_hd_video(token)
+    # test_video_server.test_load(token)
     # test_video_server.test_hls(token)
-    for i in cnf.video:
-        os.remove(i)
+    # test_video_server.test_record_length(token)
+
+    # for i in cnf.VIDEOS:
+    #     os.remove(i)

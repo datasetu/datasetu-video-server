@@ -1,49 +1,53 @@
 import json
 
-ids = ["rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-1",
-       "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-2",
-       "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-3"]
+RESOURCE_ID = {
+    1: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-1",
+    2: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-2",
+    3: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-3",
+    "public": "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource.public"
+               }
 
-provider_url = 'https://localhost:8443/auth/v1/acl/set'
-provider_certificate = '../datasetu-ca/provider/provider.pem'
-provider_key = '../datasetu-ca/provider/provider.key.pem'
-provider_credentials = (provider_certificate, provider_key)
-provider_body = json.dumps(
-    {
-        "policy": "consumer@iisc.ac.in can access example.com/test-category/test-resource-1 for 1 month;" +
-                  "consumer@iisc.ac.in can access example.com/test-category/test-resource-2 for 1 month;" +
-                  "consumer@iisc.ac.in can access example.com/test-category/test-resource-3 for 1 month;" +
-                  "consumer@iisc.ac.in can access example.com/test-category/test-resource.public for 1 month"
-    }
-)
+YOUTUBE_URL_1 = 'https://www.youtube.com/watch?v=wKWldDnCZQ0'
+YOUTUBE_URL_2 = 'https://www.youtube.com/watch?v=QXOXIMgHgZ0'
+YOUTUBE_URL_3 = 'https://www.youtube.com/watch?v=od5nla42Jvc'
 
-consumer_url = "https://localhost:8443/auth/v1/token"
-consumer_certificate = '../datasetu-ca/consumer/consumer.pem'
-consumer_key = '../datasetu-ca/consumer/consumer.key.pem'
-consumer_credentials = (consumer_certificate, consumer_key)
-consumer_body = json.dumps({
+VIDEOS = {
+    1 : 'wKWldDnCZQ0.webm',
+    2 : 'QXOXIMgHgZ0.mkv',
+    "HD" : 'od5nla42Jvc.webm'
+        }
+
+RTMP_HLS = 'rtmp+hls'
+RTMP ='rtmp'
+
+RECORD_SRC_DIR = '../nginx/record/'
+
+ACL_SET_ENDPOINT = 'https://localhost:8443/auth/v1/acl/set'
+ACL_SET_CERTIFICATE = '../datasetu-ca/provider/provider.pem'
+ACL_SET_KEY = '../datasetu-ca/provider/provider.key.pem'
+ACL_SET_CREDENTIALS = (ACL_SET_CERTIFICATE, ACL_SET_KEY)
+
+REQUEST_TOKEN_ENDPOINT = "https://localhost:8443/auth/v1/token"
+REQUEST_TOKEN_CERTIFICATE = '../datasetu-ca/consumer/consumer.pem'
+REQUEST_TOKEN_KEY = '../datasetu-ca/consumer/consumer.key.pem'
+REQUEST_TOKEN_CREDENTIALS = (REQUEST_TOKEN_CERTIFICATE, REQUEST_TOKEN_KEY)
+REQUEST_TOKEN_BODY = json.dumps({
     "request": [
         {
-            "id": ids[0],
+            "id": RESOURCE_ID[1],
             "scopes": ["write", "read"]
         },
         {
-            "id": ids[1],
+            "id": RESOURCE_ID[2],
             "scopes": ["write", "read"]
         },
         {
-            "id": ids[2],
+            "id": RESOURCE_ID[3],
             "scopes": ["write", "read"]
         },
         {
-            "id": "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource.public",
+            "id": RESOURCE_ID["public"],
             "scopes": ["write"]
         }
     ]
 })
-
-video = ['wKWldDnCZQ0.webm',
-         'QXOXIMgHgZ0.mkv',
-         'od5nla42Jvc.webm']
-
-RECORD_SRC_DIR = '../nginx/record/'
