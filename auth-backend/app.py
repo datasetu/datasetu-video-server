@@ -4,7 +4,7 @@ __author__ = "Vishwajeet Mishra <vishwajeet@artpark.in>"
 
 # Purpose: Main application file
 import json, os
-from flask import Flask, request, Response, jsonify, render_template
+from flask import Flask, request, Response
 from urllib.parse import unquote_plus, quote_plus, urlparse
 from requests_pkcs12 import post
 import datetime
@@ -49,18 +49,18 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
             if not os.path.islink(target):
                 os.symlink(src, target)
 
+
 app = Flask(__name__, template_folder='.')
 
 token_cache = {}
 
-def is_string_safe(string, exceptions=""):
+
+def is_string_safe(string, exceptions="/.@-"):
     if (not string or type(string) != str):
         return False
 
     if (len(string) == 0 or len(string) > config.MAX_SAFE_STRING_LEN):
         return False
-
-    exceptions = exceptions + "-/.@"
 
     for ch in string:
         if (
@@ -70,13 +70,13 @@ def is_string_safe(string, exceptions=""):
         ):
             continue
 
-        if (exceptions.index(ch) == -1):
+        if (exceptions.find(ch) == -1):
             return False
 
     return True
 
 
-def is_valid_token(token, user=None):
+def is_valid_token(token):
     if (not is_string_safe(token)):
         return False
 
@@ -118,13 +118,13 @@ def symlink(resource_id):
 
 
 def auth(introspect_response, resource_id, call):
-    if (not introspect_response or not introspect_response['request']):
-        print("Request not found in body.",file=sys.stderr)
+    if (not isinstance(introspect_response, dict) or not introspect_response or 'request' not in introspect_response):
+        print("Request not found in body.", file=sys.stderr)
         return False
 
     for r in introspect_response['request']:
         if (not r['scopes']):
-            print("Scopes not found in body.",file=sys.stderr)
+            print("Scopes not found in body.", file=sys.stderr)
             return False
 
         if (r['id'] != resource_id):
@@ -132,18 +132,23 @@ def auth(introspect_response, resource_id, call):
 
         if (call == 'play'):
             if ("read" not in r['scopes']):
-                print("Read scope is not assigned.",file=sys.stderr)
+                print("Read scope is not assigned.", file=sys.stderr)
                 return False
-        else:
+
+        elif (call == 'publish'):
             if ("write" not in r['scopes']):
-                print("Write Scope is not assigned.",file=sys.stderr)
+                print("Write Scope is not assigned.", file=sys.stderr)
                 return False
 
             split = resource_id.split("/")
 
             if (len(split) > 7):
-                print("Request id too long",file=sys.stderr)
+                print("Request id too long", file=sys.stderr)
                 return False
+
+        else:
+            print("Invalid Call")
+            return False
 
         return True
     return False
@@ -151,7 +156,7 @@ def auth(introspect_response, resource_id, call):
 
 def validation(resource_id, token, call):
     if (not is_valid_token(token)):
-        print("Invalid Token",file=sys.stderr)
+        print("Invalid Token", file=sys.stderr)
         return Response(status=403)
 
     if (token in token_cache):
@@ -193,16 +198,16 @@ def on_hls_auth() -> Response:
             Response: status_code(200,403)
     """
     if ('HTTP_URL' not in request.environ
-        or 'HTTP_TOKEN' not in request.environ
-        or len(request.environ['HTTP_TOKEN']) == 0):
-        print('Invalid Input')
+            or 'HTTP_TOKEN' not in request.environ
+            or len(request.environ['HTTP_TOKEN']) == 0):
+        print('Invalid Input', file=sys.stderr)
         return Response(status=403)
 
     uri = urlparse(request.environ['HTTP_URL'])
     path_split = uri.path.split('/')
 
     if len(path_split) != 4:
-        print("Invalid ID",file=sys.stderr)
+        print("Invalid ID", file=sys.stderr)
         return Response(status=403)
 
     resource_id = unquote_plus(path_split[2])

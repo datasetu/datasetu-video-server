@@ -6,15 +6,17 @@ import pyinotify
 import util
 from ffpyplayer.player import MediaPlayer
 
+
 def callback(ev):
     print(ev._watch_manager._wmd[1])
     # util.inCloseWrite()
     return True
 
+
 def test_record_length(token):
-    ffmpeg\
-        .input(cnf.VIDEOS[1], re = True)\
-        .output(util.get_rtmp_path(cnf.RTMP_HLS, cnf.RESOURCE_ID[1], token),format='flv')\
+    ffmpeg \
+        .input(cnf.VIDEOS[1]) \
+        .output(util.get_rtmp_path(cnf.RTMP_HLS, cnf.RESOURCE_ID[1], token), format='flv') \
         .run_async(
         pipe_stdin=True,
         pipe_stdout=True,
@@ -25,33 +27,43 @@ def test_record_length(token):
     notifier = pyinotify.Notifier(wm)
     notifier.loop()
 
+
 def test_token(token):
     result = []
     incorrect_token = util.generate_random_chars()
-    #************when publisher has verified token****************
-    for type in [cnf.RTMP_HLS,cnf.RTMP]:
+    # ************when publisher has verified token****************
+    for type in [cnf.RTMP_HLS, cnf.RTMP]:
+        # c = cv2.VideoCapture(cnf.VIDEOS[1])
         rtmp_path = util.get_rtmp_path(type, cnf.RESOURCE_ID[1], token)
-        cap = cv2.VideoCapture(rtmp_path)
-        while(not cap.isOpened()):
-            result.append(
-                (
-                ffmpeg
-                    .input(cnf.VIDEOS[1], re = True)
-                    .output(rtmp_path, format='flv')
-                    .run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True))
-            )
 
-        #***************when subscriber has verified token*************
-        # cap = cv2.VideoCapture(util.get_rtmp_path(type, cnf.RESOURCE_ID[1], token))
+        result.append(
+            subprocess.Popen(['ffmpeg', '-i', cnf.VIDEOS[1], '-f', 'flv',rtmp_path],
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            # ffmpeg\
+            #     .input('-')\
+            #     .output(rtmp_path, format='flv')\
+            #     .run_async(pipe_stdout=True,pipe_stderr=True, pipe_stdin=True)
+        )
+        # while(c.isOpened()):
+        #     success, frame = c.read()
+        #     if success:
+        #         if cv2.waitKey(1) & 0xFF == ord('q'):
+        #             break
+        #         result[len(result)-1].stdin.write(frame.tostring())
+        # c.release()
+        # ***************when subscriber has verified token*************
+        # cap = cv2.VideoCapture(rtmp_path)
+        # counter = 0
         # while (not cap.isOpened()):
-        #     cap = cv2.VideoCapture(util.get_rtmp_path(type, cnf.RESOURCE_ID[1], token))
-        #     print('Waiting')
+        #     cap = cv2.VideoCapture(rtmp_path)
+        #     counter += 1
+        #     print('Waiting', counter)
         #     sleep(1)
-            cap = cv2.VideoCapture(rtmp_path)
-            if(not cap.isOpened()):
-                sleep(0.1)
-                result.pop()
-                print('retrying')
+        cap = cv2.VideoCapture(rtmp_path)
+        #     if(not cap.isOpened()):
+        #         sleep(0.1)
+        # result.pop()
+        # print('retrying')
         assert (cap.isOpened())
         # TODO: Do not try to play the videos. It's not a practical approach for large loads. Instead capture the frames and store them in a file for processing
         # player  = vlc.MediaPlayer(util.get_rtmp_path(type, cnf.RESOURCE_ID[1], token+'qq'))
@@ -64,24 +76,22 @@ def test_token(token):
         #         img, t =frame
         #         print(frame)
         # ***************when subscriber has incorrect token*************
-        # cap = cv2.VideoCapture(util.get_rtmp_path(type, cnf.RESOURCE_ID[1], incorrect_token))
-        # assert (not cap.isOpened())
+        cap = cv2.VideoCapture(util.get_rtmp_path(type, cnf.RESOURCE_ID[1], incorrect_token))
+        assert (not cap.isOpened())
 
     for i in result:
         assert ('error' not in i.communicate()[1].decode('UTF-8'))
-        i.terminate()
 
     result = []
 
     # ***************when publisher has incorrect token*************
-    for type in [cnf.RTMP_HLS,cnf.RTMP]:
-
-        result.append((
-            ffmpeg
-                .input(cnf.VIDEOS[2], re = True)
-                .output(util.get_rtmp_path(type, cnf.RESOURCE_ID[2], incorrect_token), format='flv')
-                .run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True)
-        ))
+    for type in [cnf.RTMP_HLS, cnf.RTMP]:
+        result.append(
+            ffmpeg \
+                .input(cnf.VIDEOS[2]) \
+                .output(util.get_rtmp_path(type, cnf.RESOURCE_ID[2], incorrect_token), format='flv') \
+                .run_async(pipe_stdout=True, pipe_stderr=True)
+        )
 
         # ***************when subscriber has verified token*************
         cap = cv2.VideoCapture(util.get_rtmp_path(type, cnf.RESOURCE_ID[2], token))
@@ -102,22 +112,25 @@ def test_id(token):
     incorrect_id = util.generate_random_chars()
 
     # ***************when publisher has verified id*************
-    for type in [cnf.RTMP_HLS,cnf.RTMP]:
+    for type in [cnf.RTMP_HLS, cnf.RTMP]:
+        rtmp_path = util.get_rtmp_path(type, cnf.RESOURCE_ID[1], token)
 
         result.append(
-            ffmpeg
-                .input(cnf.VIDEOS[1], re = True)
-                .output(util.get_rtmp_path(type, cnf.RESOURCE_ID[1], token), format='flv')
-                .run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True)
+            ffmpeg \
+                .input(cnf.VIDEOS[1]) \
+                .output(rtmp_path, format='flv') \
+                .run_async(pipe_stdout=True, pipe_stderr=True)
         )
 
         # ***************when subscriber has verified id*************
-        cap = cv2.VideoCapture(util.get_rtmp_path(type, cnf.RESOURCE_ID[1], token))
-        while(not cap.isOpened()):
-            cap = cv2.VideoCapture(util.get_rtmp_path(type, cnf.RESOURCE_ID[1], token))
-            print('Waiting')
+        cap = cv2.VideoCapture(rtmp_path)
+        counter = 0
+        while (not cap.isOpened()):
+            cap = cv2.VideoCapture(rtmp_path)
+            counter += 1
+            print('Waiting', counter)
             sleep(1)
-        cap = cv2.VideoCapture(util.get_rtmp_path(type, cnf.RESOURCE_ID[1], token))
+        # cap = cv2.VideoCapture(rtmp_path)
         assert (cap.isOpened())
 
         # ***************when subscriber has incorrect id*************
@@ -130,13 +143,12 @@ def test_id(token):
     result = []
 
     # ***************when publisher has verified id*************
-    for type in [cnf.RTMP_HLS,cnf.RTMP]:
-
+    for type in [cnf.RTMP_HLS, cnf.RTMP]:
         result.append(
-            ffmpeg
-                .input(cnf.VIDEOS[2], re = True)
-                .output(util.get_rtmp_path(type, incorrect_id, token), format='flv')
-                .run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True)
+            ffmpeg \
+                .input(cnf.VIDEOS[2]) \
+                .output(util.get_rtmp_path(type, incorrect_id, token), format='flv') \
+                .run_async(pipe_stdout=True, pipe_stderr=True,pipe_stdin = True)
         )
 
         # ***************when subscriber has verified id*************
@@ -149,16 +161,16 @@ def test_id(token):
 
     for i in result:
         assert ('error' in i.communicate()[1].decode('UTF-8'))
-        i.terminate()
 
     print("Id test passed!", file=sys.stderr)
+
 
 def test_hd_video(token):
     # TODO: Check resolution, size, duration etc
 
-    result = ffmpeg\
-        .input(cnf.VIDEOS["HD"])\
-        .output(util.get_rtmp_path(cnf.RTMP_HLS, cnf.RESOURCE_ID[3], token),format='flv')\
+    result = ffmpeg \
+        .input(cnf.VIDEOS["HD"]) \
+        .output(util.get_rtmp_path(cnf.RTMP_HLS, cnf.RESOURCE_ID[3], token), format='flv') \
         .run_async(
         pipe_stdin=True,
         pipe_stdout=True,
@@ -176,16 +188,16 @@ def test_load(token):
 
         result.append(
             ffmpeg
-            .input(cnf.VIDEOS[i if (i<3) else 'HD'], re = True)
-            .output(util.get_rtmp_path(cnf.RTMP, cnf.RESOURCE_ID[i], token), format='flv')
-            .run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True)
+                .input(cnf.VIDEOS[i if (i < 3) else 'HD'], re=True)
+                .output(util.get_rtmp_path(cnf.RTMP, cnf.RESOURCE_ID[i], token), format='flv')
+                .run_async(pipe_stdin=True, pipe_stdout=True, pipe_stderr=True)
         )
 
-        for rep in range(1,4):
+        for rep in range(1, 4):
             cap.append(cv2.VideoCapture(util.get_rtmp_path(cnf.RTMP, cnf.RESOURCE_ID[rep], token)))
 
     for i in cap:
-            assert (i.isOpened())
+        assert (i.isOpened())
 
     frames = [None] * len(cap)
     ret = [None] * len(cap)
@@ -198,7 +210,7 @@ def test_load(token):
 
         for i, f in enumerate(frames):
             if ret[i] is True:
-                cv2.imshow(str(i),f)
+                cv2.imshow(str(i), f)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
@@ -227,3 +239,33 @@ def test_hls(token):
                             cookies={'token': token}, verify=False)
     assert (response.status_code == 200)
     print('HLS test passed!', file=sys.stderr)
+
+
+def test_live_stream(token):
+    rtmp = util.get_rtmp_path(cnf.RTMP, cnf.RESOURCE_ID[1], token)
+    # Read video and get attributes
+    cap = cv2.VideoCapture(0)
+    size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+    sizeStr = str(size[0]) + 'x' + str(size[1])
+    command = ['ffmpeg',
+               '-y', '-an',
+               '-f', 'rawvideo',
+               '-vcodec', 'rawvideo',
+               '-pix_fmt', 'bgr24',
+               '-s', sizeStr,
+               '-r', '25',
+               '-i', '-',
+               '-c:v', 'libx264',
+               '-pix_fmt', 'yuv420p',
+               '-preset', 'ultrafast',
+               '-f', 'flv',
+               rtmp]
+    pipe = subprocess.Popen(command, shell=False, stdin=subprocess.PIPE
+                            )
+    while cap.isOpened():
+        success, frame = cap.read()
+        if success:
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+            pipe.stdin.write(frame.tostring())
+    cap.release()

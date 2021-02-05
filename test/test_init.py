@@ -1,14 +1,14 @@
 import requests, youtube_dl, json, random
 from urllib.parse import quote_plus
-import test_config as cnf, test_video_server
+import test_config as cnf, test_video_server, test_authenticator
 
 
 def auth_setup():
     ACL_SET_POLICY = ""
-    #TODO : Check for this unusual behavior
-    for i in range(1, random.randint(3, 12)):
+    for i in range(1, random.randint(5, 12)):
         ACL_SET_POLICY += "consumer@iisc.ac.in can access example.com/test-category/test-resource-" + str(i) + " for 1 month;"
     ACL_SET_POLICY += "consumer@iisc.ac.in can access example.com/test-category/test-resource.public for 1 month"
+
     ACL_SET_BODY = json.dumps(
         {
             "policy": ACL_SET_POLICY
@@ -48,12 +48,19 @@ if __name__ == '__main__':
 
     token = quote_plus(response['token'])
 
-    test_video_server.test_token(token)
+    #**********Testing Authenticator**************
+    test_authenticator.test_is_string_safe(token)
+    test_authenticator.test_is_valid_token(token)
+    # test_authenticator.test_symlink(token)
+    test_authenticator.test_auth(token)
+
+    #**********Testing Video Server***************
+    # test_video_server.test_token(token)
     # test_video_server.test_id(token)
     # test_video_server.test_hd_video(token)
     # test_video_server.test_load(token)
     # test_video_server.test_hls(token)
     # test_video_server.test_record_length(token)
-
+    # test_video_server.test_live_stream(token)
     # for i in cnf.VIDEOS:
     #     os.remove(i)

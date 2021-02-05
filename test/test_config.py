@@ -4,6 +4,7 @@ RESOURCE_ID = {
     1: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-1",
     2: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-2",
     3: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-3",
+    4: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-4",
     "public": "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource.public"
                }
 
@@ -46,8 +47,14 @@ REQUEST_TOKEN_BODY = json.dumps({
             "scopes": ["write", "read"]
         },
         {
+            "id": RESOURCE_ID[4],
+            "scopes": ["write", "read"]
+        },
+        {
             "id": RESOURCE_ID["public"],
             "scopes": ["write"]
         }
     ]
 })
+
+INTROSPECT_ENDPOINT = "https://localhost:8443/auth/v1/token/introspect"
