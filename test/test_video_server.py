@@ -1,7 +1,6 @@
-import subprocess, sys, test_config as cnf, requests
-from multiprocessing import Process, Manager
+import sys, test_config as cnf, requests
+from multiprocessing import Manager
 from time import sleep
-import vlc
 import pyinotify
 import util
 
