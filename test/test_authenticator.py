@@ -1,4 +1,4 @@
-import os,sys,urllib.parse, ffmpeg,subprocess,json
+import os,sys,urllib.parse, subprocess,json
 from requests_pkcs12 import post
 sys.path.insert(0, '../auth-backend')
 os.environ["AUTH_SERVER"] = 'auth.local'
