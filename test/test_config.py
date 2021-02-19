@@ -26,6 +26,7 @@ PUSH_VALID = 'push_valid'
 PUSH_INVALID = 'push_invalid'
 PLAY_VALID = 'play_valid'
 PLAY_INVALID = 'play_invalid'
+FRAME_RATE = 'frame_rate'
 
 RECORD_SRC_DIR = '../nginx/record/'
 

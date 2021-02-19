@@ -84,3 +84,4 @@ def test_auth(token):
     assert app.auth(response.json(), id, util.generate_random_chars()) == False
 
     print('Auth Test Passed!')
+

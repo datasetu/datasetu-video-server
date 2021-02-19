@@ -2,6 +2,7 @@ import os, subprocess, signal, string, random, test_config as cnf
 from moviepy.editor import VideoFileClip
 from time import sleep
 from multiprocessing import Process, Manager
+import vlc
 
 class Ffmpeg:
     def __init__(self):
@@ -61,7 +62,7 @@ class Ffmpeg:
 
         return_dict[type] = self.result
 
-    def play(self,return_dict, type = None, timeout = None):
+    def play(self, return_dict, type = None, timeout = None):
         res = subprocess.Popen(['ffplay'] + self.input_args + self.global_args + self.output_args  + ['-loglevel','error'],
                                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if not res.poll() and timeout:
@@ -71,8 +72,14 @@ class Ffmpeg:
         if len(errors):
             self.result = False
         res.terminate()
-        # print(errors, type)
+
         return_dict[type] = self.result
+
+    def get_frame_rate(self, return_dict, type = None, timeout = None):
+        media = vlc.MediaPlayer(self.input_args[1])
+        media.play()
+        sleep(20)
+        return_dict[type] = media.get_fps()
 
 class Multitask:
     def __init__(self):
@@ -101,9 +108,8 @@ def inCloseWrite(event):
     src = event.pathname
     if "%252F" not in src:
         return
-
     assert (len(src) > 0)
-    assert (get_record_length(src) == get_record_length(cnf.VIDEOS[1]))
+    assert (int(get_record_length(src)) ==  int(get_record_length(cnf.VIDEOS[1])))
     print("Recording test passed!")
     os.kill(os.getpid(), signal.SIGINT)
 

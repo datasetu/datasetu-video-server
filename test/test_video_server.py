@@ -23,14 +23,6 @@ def test_record_length(token):
 
 
 def test_token(token):
-    # publisher = util.Ffmpeg()
-    # publisher.input(cnf.VIDEOS[1])
-    # publisher.output(util.get_rtmp_path(cnf.RTMP, cnf.RESOURCE_ID[1], token) ,'f', 'flv')
-    # publisher.push({},cnf.PUSH_VALID)
-    # medai = vlc.MediaPlayer(util.get_rtmp_path(cnf.RTMP, cnf.RESOURCE_ID[1], token))
-    # medai.play()
-
-
     incorrect_token = util.generate_random_chars()
     multitask = util.Multitask()
     # ***************when publisher has verified token*************
@@ -146,13 +138,14 @@ def test_load(token):
             publisher.input(cnf.VIDEOS[1])
             publisher.output(util.get_rtmp_path(type, id, token), 'f', 'flv')
 
-            subscriber = util.Ffmpeg()
-            subscriber.input(util.get_rtmp_path(type, id, token))
+            # subscriber = util.Ffmpeg()
+            # subscriber.input(util.get_rtmp_path(type, id, token))
 
-            multitask.add(publisher.push, cnf.PUSH_VALID, 20)
-            multitask.add(subscriber.play, cnf.PLAY_VALID, 20)
+            multitask.add(publisher.push, cnf.PUSH_VALID)
+            # multitask.add(subscriber.play, cnf.PLAY_VALID, 20)
+
     multitask.run()
-    print(len(multitask.return_dict))
+
     for res in multitask.return_dict.values():
         assert(res is True)
 
@@ -167,7 +160,7 @@ def test_hls(token):
     publisher.push({},cnf.PUSH_VALID, 20)
 
     # TODO: Find a way to remove this
-    sleep(60)
+    sleep(20)
     response = requests.get('https://localhost:3002/rtmp+hls/' + cnf.RESOURCE_ID[1] + '/index.m3u8',
                             cookies={'token': token}, verify=False)
     assert (response.status_code == 200)
@@ -185,12 +178,11 @@ def test_live_stream(token):
     subscriber = util.Ffmpeg()
     subscriber.input(util.get_rtmp_path(cnf.RTMP, cnf.RESOURCE_ID[1], token))
 
-    multitask.add(publisher.push, cnf.PUSH_VALID, 20)
-    multitask.add(subscriber.play, cnf.PLAY_VALID, 20)
+    multitask.add(publisher.push, cnf.PUSH_VALID, 100)
+    multitask.add(subscriber.get_frame_rate, cnf.FRAME_RATE)
     multitask.run()
-
-    for res in multitask.return_dict.values():
-        assert(res is True)
+    print(multitask.return_dict)
+    assert( multitask.return_dict['frame_rate'] > 0)
 
     print("Live Stream Test passed!")
 
