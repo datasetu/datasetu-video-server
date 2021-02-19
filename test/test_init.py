@@ -35,7 +35,7 @@ def auth_setup():
 def download_videos():
     ydl_opts = {'outtmpl': '%(id)s.%(ext)s'}
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([cnf.YOUTUBE_URL_1,cnf.YOUTUBE_URL_2,cnf.YOUTUBE_URL_3])
+        ydl.download([cnf.YOUTUBE_URL_1,cnf.YOUTUBE_URL_2,cnf.YOUTUBE_URL_3, cnf.YOUTUBE_URL_4])
 
 
 if __name__ == '__main__':
@@ -49,18 +49,18 @@ if __name__ == '__main__':
     token = quote_plus(response['token'])
 
     #**********Testing Authenticator**************
-    test_authenticator.test_is_string_safe(token)
-    test_authenticator.test_is_valid_token(token)
+    # test_authenticator.test_is_string_safe(token)
+    # test_authenticator.test_is_valid_token(token)
     # test_authenticator.test_symlink(token)
-    test_authenticator.test_auth(token)
+    # test_authenticator.test_auth(token)
 
     #**********Testing Video Server***************
-    # test_video_server.test_token(token)
-    # test_video_server.test_id(token)
-    # test_video_server.test_hd_video(token)
-    # test_video_server.test_load(token)
-    # test_video_server.test_hls(token)
     # test_video_server.test_record_length(token)
+    test_video_server.test_token(token)
+    test_video_server.test_id(token)
+    test_video_server.test_hd_video(token)
+    test_video_server.test_load(token)
+    # test_video_server.test_hls(token)
     # test_video_server.test_live_stream(token)
     # for i in cnf.VIDEOS:
     #     os.remove(i)

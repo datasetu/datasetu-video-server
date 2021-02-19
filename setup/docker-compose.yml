@@ -32,5 +32,7 @@ services:
     volumes:
       - ../auth-backend:/root/auth-backend
       - ../:/root/datasetu-video-server/
+    environment:
+      - "SKIP_TESTS=true"
     env_file:
       - video-server.conf
