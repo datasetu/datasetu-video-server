@@ -3,3 +3,5 @@ requests-pkcs12==1.9
 DateTime==4.3
 watchdog==1.0.2
 python-vlc==3.0.11115
+pyinotify==0.9.6
+requests==2.22.0
