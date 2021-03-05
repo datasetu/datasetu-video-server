@@ -70,5 +70,5 @@ if __name__ == '__main__':
     test_video_server.test_load(token)
     # test_video_server.test_hls(token)
     # test_video_server.test_live_stream(token)
-    for i in conf.VIDEOS:
-        os.remove(i)
+    # for i in conf.VIDEOS:
+    #    os.remove(i)
