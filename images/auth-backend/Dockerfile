@@ -9,6 +9,4 @@ run	apk update && \
 	apk add build-base python3 py3-pip python3-dev libffi-dev openssl openssl-dev && \
 	pip install -r requirements.txt
 
-workdir /root/auth-backend
-
 cmd 	./docker-entrypoint.sh

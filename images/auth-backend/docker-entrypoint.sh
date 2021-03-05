@@ -1,9 +1,8 @@
-#!/bin/bash
+#!/bin/ash
 
 if [ $SKIP_TESTS == "true" ];
 then
-	python3 app.py
+	python3 /root/auth-backend/auth-backend.py
 else
-	python3 test_authenticator.py && \
-		python3 app.py
+	python3 test.py && python3 /root/auth-backend/auth-backend.py
 fi

@@ -6,7 +6,7 @@ __author__ = "Vishwajeet Mishra <vishwajeet@artpark.in>"
 import json, os
 from flask import Flask, request, Response
 from urllib.parse import unquote_plus, quote_plus, urlparse
-from requests_pkcs12 import post
+from requests import post
 import datetime
 import config
 import sys
@@ -177,8 +177,7 @@ def validation(resource_id, token, call):
         url=config.INTROSPECT_URL,
         headers={"content-type": "application/json"},
         data=json.dumps(body),
-        pkcs12_filename=config.SERVER_CERTIFICATE,
-        pkcs12_password='',
+        cert=(config.RS_CERT_FILE, config.RS_KEY_FILE),
         verify=False
     )
     if (response.status_code != 200):

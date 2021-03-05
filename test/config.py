@@ -5,7 +5,7 @@ RESOURCE_ID = {
     2: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-2",
     3: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-3",
     4: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-4",
-    "public": "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource.public"
+    # "public": "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource.public"
                }
 
 YOUTUBE_URL_1 = 'https://www.youtube.com/watch?v=61QSHrOuGEA'
@@ -14,7 +14,7 @@ YOUTUBE_URL_3 = 'https://www.youtube.com/watch?v=QXOXIMgHgZ0'
 YOUTUBE_URL_4 = 'https://www.youtube.com/watch?v=R3GfuzLMPkA'
 
 VIDEOS = {
-    1 : '61QSHrOuGEA.webm',
+    1 : '61QSHrOuGEA.mkv',
     2 : 'wKWldDnCZQ0.webm',
     3 : 'QXOXIMgHgZ0.mkv',
     "HD" : 'R3GfuzLMPkA.webm'
@@ -57,10 +57,10 @@ REQUEST_TOKEN_BODY = json.dumps({
             "id": RESOURCE_ID[4],
             "scopes": ["write", "read"]
         },
-        {
-            "id": RESOURCE_ID["public"],
-            "scopes": ["write"]
-        }
+        # {
+        #     "id": RESOURCE_ID["public"],
+        #     "scopes": ["write"]
+        # }
     ]
 })
 
