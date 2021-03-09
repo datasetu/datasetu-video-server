@@ -2,13 +2,15 @@
 
 import requests, youtube_dl, json, random, time, os
 from urllib.parse import quote_plus
-import config as conf, test_video_server
+import config as conf, test_video_server, logging
 
 
 def auth_setup():
+    logging.info("In auth setup")
     ACL_SET_POLICY = ""
     for i in range(1, random.randint(5, 12)):
-        ACL_SET_POLICY += "consumer@iisc.ac.in can access example.com/test-category/test-resource-" + str(i) + " for 1 month;"
+        ACL_SET_POLICY += "consumer@iisc.ac.in can access example.com/test-category/test-resource-" + str(
+            i) + " for 1 month;"
     ACL_SET_POLICY += "consumer@iisc.ac.in can access example.com/test-category/test-resource.public for 1 month"
 
     ACL_SET_BODY = json.dumps(
@@ -16,14 +18,17 @@ def auth_setup():
             "policy": ACL_SET_POLICY
         }
     )
+
+    logging.info("Post ACL Set Policy")
     requests.post(
-        url = conf.ACL_SET_ENDPOINT,
-        verify = False,
-        cert = conf.ACL_SET_CREDENTIALS,
-        data = ACL_SET_BODY,
-        headers = {"content-type": "application/json"}
+        url=conf.ACL_SET_ENDPOINT,
+        verify=False,
+        cert=conf.ACL_SET_CREDENTIALS,
+        data=ACL_SET_BODY,
+        headers={"content-type": "application/json"}
     )
 
+    logging.info("Requesting Token")
     resp = requests.post(
         url=conf.REQUEST_TOKEN_ENDPOINT,
         verify=False,
@@ -35,38 +40,43 @@ def auth_setup():
 
 
 def download_videos():
+    logging.info("In Download Videos")
     ydl_opts = {'outtmpl': '%(id)s.%(ext)s'}
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([conf.YOUTUBE_URL_1,conf.YOUTUBE_URL_2,conf.YOUTUBE_URL_3, conf.YOUTUBE_URL_4])
+        ydl.download([conf.YOUTUBE_URL_1, conf.YOUTUBE_URL_2, conf.YOUTUBE_URL_3, conf.YOUTUBE_URL_4])
 
 
 if __name__ == '__main__':
 
+    logging.basicConfig(level=logging.INFO)
+    for log_name, log_obj in logging.Logger.manager.loggerDict.items():
+        if log_name != '<module name>':
+            log_obj.disabled = True
+
     response = auth_setup()
     download_videos()
+
     for _id in conf.RESOURCE_ID.keys():
         conf.RESOURCE_ID[_id] = quote_plus(conf.RESOURCE_ID[_id])
 
     token = quote_plus(response['token'])
-    # print(token)
-    # import cv2,utils
-    # cap = cv2.VideoCapture(utils.get_rtmp_path(conf.RTMP, conf.RESOURCE_ID[1], token))
-    # print(cap.isOpened())
-    #**********Testing Authenticator**************
+    logging.debug(token)
+
+    # **********Testing Authenticator**************
     # test_authenticator.test_is_string_safe(token)
     # test_authenticator.test_is_valid_token(token)
     # test_authenticator.test_symlink(token)
     # test_authenticator.test_auth(token)
 
-    #**********Testing Video Server***************
+    # **********Testing Video Server***************
     test_video_server.test_record_length(token)
-    time.sleep(60)
+    # # # time.sleep(60)
     test_video_server.test_token(token)
-    time.sleep(60)
+    # # # time.sleep(60)
     test_video_server.test_id(token)
-    time.sleep(60)
+    # time.sleep(60)
     test_video_server.test_hd_video(token)
-    time.sleep(60)
+    # time.sleep(60)
     test_video_server.test_load(token)
     # test_video_server.test_hls(token)
     # test_video_server.test_live_stream(token)

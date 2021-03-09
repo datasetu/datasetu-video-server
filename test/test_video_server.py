@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
-import sys, config as conf, requests
-from multiprocessing import Manager
+import sys, config as conf, requests, logging
 from time import sleep
 import pyinotify
-import utils,cv2
+import utils, cv2,io
 
 
 def test_record_length(token):
-
+    logging.info("In Record Test")
     multitask = utils.Multitask()
 
     src_path = conf.RECORD_SRC_DIR
@@ -17,21 +16,30 @@ def test_record_length(token):
     notifier = pyinotify.Notifier(wm)
     publisher = utils.Ffmpeg()
     publisher.input(conf.VIDEOS[1])
-    publisher.output(utils.get_rtmp_path(conf.RTMP_HLS, conf.RESOURCE_ID[1], token),'-f','flv')
+    publisher.output(utils.get_rtmp_path(conf.RTMP_HLS, conf.RESOURCE_ID[1], token), '-f', 'flv')
     multitask.add(notifier.loop)
-    multitask.add(publisher.push,conf.PUSH_VALID)
+    multitask.add(publisher.push, conf.PUSH_VALID)
+    logging.info("Initialize notifier and Video Stream.")
     multitask.run()
 
 
 def test_token(token):
+    logging.info("In Token Test")
     incorrect_token = utils.generate_random_chars()
 
     # ***************when publisher has verified token*************
+
+    logging.info("When Publish with verified Token")
+
     for app in [conf.RTMP, conf.RTMP_HLS]:
         push_retry = 0
         success = False
-        while push_retry < 3 and not success:
+        while push_retry < 5 and not success:
+
+            logging.info("Try to Stream %d", push_retry + 1)
+
             push_retry += 1
+
             multitask = utils.Multitask()
             publisher = utils.Ffmpeg()
             publisher.input(conf.VIDEOS[1])
@@ -53,19 +61,25 @@ def test_token(token):
 
             multitask.run()
 
-            print(multitask.return_dict[conf.PLAY_VALID], multitask.return_dict[conf.PUSH_VALID],
-                  multitask.return_dict[conf.PLAY_INVALID])
-            if multitask.return_dict[conf.PUSH_VALID] and multitask.return_dict[conf.PLAY_VALID] and not multitask.return_dict[
-                conf.PLAY_INVALID]:
+            logging.debug(multitask.return_dict[conf.PLAY_VALID], multitask.return_dict[conf.PUSH_VALID],
+                          multitask.return_dict[conf.PLAY_INVALID])
+            if (multitask.return_dict[conf.PUSH_VALID] and multitask.return_dict[conf.PLAY_VALID]
+                    and not multitask.return_dict[conf.PLAY_INVALID]):
                 success = True
+        logging.info("%s when publisher has verified token passed!", app)
         assert success
-    print("done")
-    sleep(20)
+
     # ***************when publisher has incorrect token*************
+
+    logging.info("When Publish with incorrect Token")
+
     for app in [conf.RTMP, conf.RTMP_HLS]:
         push_retry = 0
         success = False
-        while push_retry < 3 and not success:
+        while push_retry < 5 and not success:
+
+            logging.info("Try to Stream %d", push_retry + 1)
+
             push_retry += 1
             multitask = utils.Multitask()
             publisher = utils.Ffmpeg()
@@ -88,24 +102,33 @@ def test_token(token):
 
             multitask.run()
 
-            print(multitask.return_dict[conf.PLAY_VALID], multitask.return_dict[conf.PUSH_VALID],
-                  multitask.return_dict[conf.PLAY_INVALID])
-            if not multitask.return_dict[conf.PUSH_VALID] and not multitask.return_dict[conf.PLAY_VALID] and not \
-            multitask.return_dict[conf.PLAY_INVALID]:
+            logging.debug(multitask.return_dict[conf.PLAY_VALID], multitask.return_dict[conf.PUSH_VALID],
+                          multitask.return_dict[conf.PLAY_INVALID])
+
+            if (not multitask.return_dict[conf.PUSH_VALID] and not multitask.return_dict[conf.PLAY_VALID]
+                    and not multitask.return_dict[conf.PLAY_INVALID]):
                 success = True
         assert success
+        logging.info("%s when publisher has Invalid token passed!", app)
 
-    print("Token test passed!", file=sys.stderr)
+    logging.info("Token test passed!")
 
 
 def test_id(token):
+    logging.info("In Id Test")
     incorrect_id = utils.generate_random_chars()
 
     # ***************when publisher has verified id*************
+
+    logging.info("When Publish with verified Id")
+
     for app in [conf.RTMP, conf.RTMP_HLS]:
         push_retry = 0
         success = False
-        while push_retry < 3 and not success:
+        while push_retry < 5 and not success:
+
+            logging.info("Try to Stream: %d", push_retry + 1)
+
             push_retry += 1
             multitask = utils.Multitask()
             publisher = utils.Ffmpeg()
@@ -128,20 +151,26 @@ def test_id(token):
 
             multitask.run()
 
-            print(multitask.return_dict[conf.PLAY_VALID], multitask.return_dict[conf.PUSH_VALID],
-                  multitask.return_dict[conf.PLAY_INVALID])
-            if multitask.return_dict[conf.PUSH_VALID] and multitask.return_dict[conf.PLAY_VALID] and not \
-            multitask.return_dict[
-                conf.PLAY_INVALID]:
+            logging.debug(multitask.return_dict[conf.PLAY_VALID], multitask.return_dict[conf.PUSH_VALID],
+                          multitask.return_dict[conf.PLAY_INVALID])
+
+            if (multitask.return_dict[conf.PUSH_VALID] and multitask.return_dict[conf.PLAY_VALID]
+                    and not multitask.return_dict[conf.PLAY_INVALID]):
                 success = True
         assert success
-    print("done")
-    sleep(20)
+
+        logging.info("%s when publisher has Valid ID passed!", app)
+    # sleep(20)
     # ***************when publisher has incorrect id*************
+
+    logging.info("When Publish with incoeerect Id")
     for app in [conf.RTMP, conf.RTMP_HLS]:
         push_retry = 0
         success = False
-        while push_retry < 3 and not success:
+        while push_retry < 5 and not success:
+
+            logging.info("Trying to Stream: %d", push_retry + 1)
+
             push_retry += 1
             multitask = utils.Multitask()
             publisher = utils.Ffmpeg()
@@ -164,22 +193,26 @@ def test_id(token):
 
             multitask.run()
 
-            print(multitask.return_dict[conf.PLAY_VALID], multitask.return_dict[conf.PUSH_VALID],
-                  multitask.return_dict[conf.PLAY_INVALID])
-            if not multitask.return_dict[conf.PUSH_VALID] and not multitask.return_dict[conf.PLAY_VALID] and not \
-                    multitask.return_dict[conf.PLAY_INVALID]:
+            logging.debug(multitask.return_dict[conf.PLAY_VALID], multitask.return_dict[conf.PUSH_VALID],
+                          multitask.return_dict[conf.PLAY_INVALID])
+
+            if (not multitask.return_dict[conf.PUSH_VALID] and not multitask.return_dict[conf.PLAY_VALID]
+                    and not multitask.return_dict[conf.PLAY_INVALID]):
                 success = True
         assert success
-
-    print("Id test passed!", file=sys.stderr)
+        logging.info("%s when publisher has Invalid Id passed!", app)
+    logging.info("Id test passed!")
 
 
 def test_hd_video(token):
     # TODO: Check resolution, size, duration etc
+
+    logging.info("In Hd test")
     for app in [conf.RTMP, conf.RTMP_HLS]:
         push_retry = 0
         success = False
-        while push_retry < 3 and not success:
+        while push_retry < 5 and not success:
+            logging.info("Try Stream: %d", push_retry+1)
             push_retry += 1
             multitask = utils.Multitask()
             publisher = utils.Ffmpeg()
@@ -197,26 +230,28 @@ def test_hd_video(token):
 
             multitask.run()
 
-            print(multitask.return_dict[conf.PLAY_VALID], multitask.return_dict[conf.PUSH_VALID])
+            logging.debug(multitask.return_dict[conf.PLAY_VALID], multitask.return_dict[conf.PUSH_VALID])
+
             if multitask.return_dict[conf.PUSH_VALID] and multitask.return_dict[conf.PLAY_VALID]:
-                cap = cv2.VideoCapture(conf.VIDEOS["HD"])
-                if cap.isOpened():
-                    original_dimensions = ( cap.get(cv2.CAP_PROP_FRAME_WIDTH), cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                    print(multitask.return_dict[conf.PLAY_VALID],original_dimensions)
-                    if original_dimensions == multitask.return_dict[conf.PLAY_VALID]:
-                        print("Hii")
-                        success = True
+                if utils.validate_dimension(conf.VIDEOS["HD"],multitask.return_dict[conf.PLAY_VALID]):
+                    success = True
         assert success
 
-    print("Hd test passed!", file=sys.stderr)
+        logging.info("Hd test with %s passed", app)
+
+    logging.info("Hd test passed!")
 
 
 def test_load(token):
     for app in [conf.RTMP, conf.RTMP_HLS]:
         for res_id in conf.RESOURCE_ID.values():
+            logging.info("Trying with %s", res_id)
             push_retry = 0
             success = False
-            while push_retry < 3 and not success:
+            while push_retry < 5 and not success:
+
+                logging.info("Try Stream %d", push_retry + 1)
+
                 push_retry += 1
                 multitask = utils.Multitask()
                 publisher = utils.Ffmpeg()
@@ -234,20 +269,22 @@ def test_load(token):
 
                 multitask.run()
 
-                print(multitask.return_dict[conf.PLAY_VALID], multitask.return_dict[conf.PUSH_VALID])
+                logging.debug(multitask.return_dict[conf.PLAY_VALID], multitask.return_dict[conf.PUSH_VALID])
+
                 if multitask.return_dict[conf.PUSH_VALID] and multitask.return_dict[conf.PLAY_VALID]:
                     success = True
-            assert success
 
-    print('Load test passed!', file=sys.stderr)
+            assert success
+            logging.info("Passed with app %s and id %s", [app], [res_id])
+
+    logging.info('Load test passed!')
 
 
 def test_hls(token):
-
     publisher = utils.Ffmpeg()
     publisher.input(conf.VIDEOS[1])
     publisher.output(utils.get_rtmp_path(conf.RTMP_HLS, conf.RESOURCE_ID[1], token), 'f', 'flv')
-    publisher.push({},conf.PUSH_VALID, 20)
+    publisher.push({}, conf.PUSH_VALID, 20)
 
     # TODO: Find a way to remove this
     sleep(20)
@@ -258,7 +295,6 @@ def test_hls(token):
 
 
 def test_live_stream(token):
-
     multitask = utils.Multitask()
 
     publisher = utils.Ffmpeg()
@@ -269,10 +305,9 @@ def test_live_stream(token):
     subscriber.input(utils.get_rtmp_path(conf.RTMP, conf.RESOURCE_ID[1], token))
 
     multitask.add(publisher.push, conf.PUSH_VALID, 100)
-    multitask.add(subscriber.get_frame_rate, conf.FRAME_RATE)
+    # multitask.add(subscriber.get_frame_rate, conf.FRAME_RATE)
     multitask.run()
-    print(multitask.return_dict)
-    assert( multitask.return_dict['frame_rate'] > 0)
+    logging.debug(multitask.return_dict)
+    assert (multitask.return_dict['frame_rate'] > 0)
 
-    print("Live Stream Test passed!")
-
+    logging.info("Live Stream Test passed!")

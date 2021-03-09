@@ -6,22 +6,22 @@ RESOURCE_ID = {
     3: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-3",
     4: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-4",
     # "public": "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource.public"
-               }
+}
 
-YOUTUBE_URL_1 = 'https://www.youtube.com/watch?v=61QSHrOuGEA'
+YOUTUBE_URL_1 = 'https://www.youtube.com/watch?v=iDO9J_3OVJ0'
 YOUTUBE_URL_2 = 'https://www.youtube.com/watch?v=wKWldDnCZQ0'
 YOUTUBE_URL_3 = 'https://www.youtube.com/watch?v=QXOXIMgHgZ0'
 YOUTUBE_URL_4 = 'https://www.youtube.com/watch?v=R3GfuzLMPkA'
 
 VIDEOS = {
-    1 : '61QSHrOuGEA.webm',
-    2 : 'wKWldDnCZQ0.webm',
-    3 : 'QXOXIMgHgZ0.mkv',
-    "HD" : 'R3GfuzLMPkA.webm'
-        }
+    1: 'iDO9J_3OVJ0.webm',
+    2: 'wKWldDnCZQ0.webm',
+    3: 'QXOXIMgHgZ0.mkv',
+    "HD": 'R3GfuzLMPkA.webm'
+}
 
 RTMP_HLS = 'rtmp+hls'
-RTMP ='rtmp'
+RTMP = 'rtmp'
 PUSH_VALID = 'push_valid'
 PUSH_INVALID = 'push_invalid'
 PLAY_VALID = 'play_valid'
