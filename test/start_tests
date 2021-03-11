@@ -6,9 +6,9 @@ import config as conf, test_video_server, logging
 
 
 def auth_setup():
-    logging.info("In auth setup")
+    logging.info("Setting up permissions in the local auth server")
     ACL_SET_POLICY = ""
-    for i in range(1, random.randint(5, 12)):
+    for i in range(1, 5):
         ACL_SET_POLICY += "consumer@iisc.ac.in can access example.com/test-category/test-resource-" + str(
             i) + " for 1 month;"
     ACL_SET_POLICY += "consumer@iisc.ac.in can access example.com/test-category/test-resource.public for 1 month"
@@ -19,7 +19,7 @@ def auth_setup():
         }
     )
 
-    logging.info("Post ACL Set Policy")
+    logging.info("Setting ACL policies for resources")
     requests.post(
         url=conf.ACL_SET_ENDPOINT,
         verify=False,
@@ -28,7 +28,7 @@ def auth_setup():
         headers={"content-type": "application/json"}
     )
 
-    logging.info("Requesting Token")
+    logging.info("Requesting access tokens")
     resp = requests.post(
         url=conf.REQUEST_TOKEN_ENDPOINT,
         verify=False,
@@ -40,15 +40,14 @@ def auth_setup():
 
 
 def download_videos():
-    logging.info("In Download Videos")
+    logging.info("Downloading videos")
     ydl_opts = {'outtmpl': '%(id)s.%(ext)s'}
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([conf.YOUTUBE_URL_1, conf.YOUTUBE_URL_2, conf.YOUTUBE_URL_3, conf.YOUTUBE_URL_4])
+        ydl.download(conf.YOUTUBE_URL)
 
     for vid in conf.VIDEOS.keys():
         for name in glob.glob(conf.VIDEOS[vid]+'*'):
             conf.VIDEOS[vid] = name
-    print(conf.VIDEOS)
 
 if __name__ == '__main__':
 
@@ -73,7 +72,7 @@ if __name__ == '__main__':
     test_video_server.test_id(token)
     test_video_server.test_hd_video(token)
     test_video_server.test_load(token)
-    # test_video_server.test_hls(token)
+    test_video_server.test_hls(token)
     # test_video_server.test_live_stream(token)
     # for i in conf.VIDEOS:
     #    os.remove(i)

@@ -1,23 +1,24 @@
 import json
 
 RESOURCE_ID = {
-    1: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-1",
-    2: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-2",
-    3: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-3",
-    4: "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-4",
-    # "public": "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource.public"
+    "test-resource-1": "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-1",
+    "test-resource-2": "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-2",
+    "test-resource-3": "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-3",
+    "test-resource-4": "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-4",
+    "public": "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource.public"
 }
 
-YOUTUBE_URL_1 = 'https://www.youtube.com/watch?v=iDO9J_3OVJ0'
-YOUTUBE_URL_2 = 'https://www.youtube.com/watch?v=wKWldDnCZQ0'
-YOUTUBE_URL_3 = 'https://www.youtube.com/watch?v=QXOXIMgHgZ0'
-YOUTUBE_URL_4 = 'https://www.youtube.com/watch?v=R3GfuzLMPkA'
+YOUTUBE_URL = ['https://www.youtube.com/watch?v=iDO9J_3OVJ0',
+               'https://www.youtube.com/watch?v=wKWldDnCZQ0',
+               'https://www.youtube.com/watch?v=QXOXIMgHgZ0',
+               'https://www.youtube.com/watch?v=R3GfuzLMPkA'
+               ]
 
 VIDEOS = {
-    1: 'iDO9J_3OVJ0',
-    2: 'wKWldDnCZQ0',
-    3: 'QXOXIMgHgZ0',
-    "HD": 'R3GfuzLMPkA'
+    "countdown" : 'iDO9J_3OVJ0',
+    "Asha" : 'wKWldDnCZQ0',
+    "Artpark" : 'QXOXIMgHgZ0',
+    "HD" : 'R3GfuzLMPkA'
 }
 
 RTMP_HLS = 'rtmp+hls'
@@ -42,25 +43,25 @@ REQUEST_TOKEN_CREDENTIALS = (REQUEST_TOKEN_CERTIFICATE, REQUEST_TOKEN_KEY)
 REQUEST_TOKEN_BODY = json.dumps({
     "request": [
         {
-            "id": RESOURCE_ID[1],
+            "id": RESOURCE_ID["test-resource-1"],
             "scopes": ["write", "read"]
         },
         {
-            "id": RESOURCE_ID[2],
+            "id": RESOURCE_ID["test-resource-2"],
             "scopes": ["write", "read"]
         },
         {
-            "id": RESOURCE_ID[3],
+            "id": RESOURCE_ID["test-resource-3"],
             "scopes": ["write", "read"]
         },
         {
-            "id": RESOURCE_ID[4],
+            "id": RESOURCE_ID["test-resource-4"],
             "scopes": ["write", "read"]
         },
-        # {
-        #     "id": RESOURCE_ID["public"],
-        #     "scopes": ["write"]
-        # }
+        {
+            "id": RESOURCE_ID["public"],
+            "scopes": ["read", "write"]
+        }
     ]
 })
 

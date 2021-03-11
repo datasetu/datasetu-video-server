@@ -147,7 +147,7 @@ def auth(introspect_response, resource_id, call):
                 return False
 
         else:
-            print("Invalid Call")
+            print("Invalid Call",file=sys.stderr)
             return False
 
         return True

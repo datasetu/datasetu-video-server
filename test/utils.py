@@ -70,39 +70,33 @@ class Ffmpeg:
         for key, value in output_kwargs:
             self.output_args.append(key)
             self.output_args.append(value)
-
-        # if 'f' not in output_kwargs.keys():
-        #     self.output_args.append('-f')
-        # self.output_args.append('flv')
         if output_file:
             self.output_args.append(output_file)
 
-    def push(self, return_dict, push_key=None, play_key=None, timeout=None):
+    def push(self, return_dict, push_key=None, play_key=None):
         logging.debug("In Push, push_key:", push_key, "play_key:", play_key)
         res = subprocess.Popen(
-            ['ffmpeg', '-re'] + self.input_args + self.global_args + self.output_args + ['-loglevel', 'error'],
+            ['ffmpeg'] + self.input_args + self.global_args + self.output_args + ['-loglevel', 'error'],
             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # if not res.poll() and timeout:
-        #     sleep(timeout)
-        #     res.terminate()
+
         errors = res.communicate()[1].decode('UTF-8')
-        # print(errors)
+
         if len(errors) > 0:
             self.result = False
         else:
             self.result = True
         return_dict[push_key] = self.result
 
-    def play(self, return_dict, push_key=None, play_key=None, timeout=None):
+    def play(self, return_dict, push_key=None, play_key=None):
         logging.debug("In Play, push_key:", push_key, "play_key:", play_key)
         while return_dict[push_key] is None:
-            logging.debug("Video is still Streaming")
-            logging.debug("Value of Push", return_dict[push_key])
+            logging.debug("Video is still streaming")
+            logging.debug("Value of push", return_dict[push_key])
             f = io.StringIO()
             with stderr_redirector(f):
                 cap = cv2.VideoCapture(self.output_args[0])
                 if cap.isOpened():
-                    logging.debug("Cap is Opened")
+                    logging.debug("OpenCV video capture succeeded")
                     self.result = True
                     logging.debug("Result", self.result)
                     break
@@ -111,16 +105,16 @@ class Ffmpeg:
             f.close()
         return_dict[play_key] = self.result
 
-    def dimension(self, return_dict, push_key=None, play_key=None, timeout=None):
-        logging.debug("In Dimension, push_key:", push_key, "play_key:", play_key)
+    def get_dimensions(self, return_dict, push_key=None, play_key=None):
+        logging.debug("In get dimensions, push_key:", push_key, "play_key:", play_key)
         while return_dict[push_key] is None:
-            logging.debug("Video is still Streaming")
+            logging.debug("Video is still streaming")
             logging.debug("Value of Push", return_dict[push_key])
             f = io.StringIO()
             with stderr_redirector(f):
                 cap = cv2.VideoCapture(self.output_args[0])
                 if cap.isOpened():
-                    logging.debug("Cap is Opened")
+                    logging.debug("OpenCV video capture succeeded")
                     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
                     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
                     self.result = (width, height)
@@ -129,10 +123,11 @@ class Ffmpeg:
             f.close()
         return_dict[play_key] = self.result
 
-    def hls(self, return_dict, push_key=None, play_key=None, timeout=None):
-        logging.debug("In Dimension, push_key:", push_key, "play_key:", play_key)
-        time.sleep(20)
-        while return_dict[push_key] is None:
+    def hls(self, return_dict, push_key=None, play_key=None):
+        logging.debug("In HLS, push_key:", push_key, "play_key:", play_key)
+        timeout = 0
+        while timeout < 5:
+            logging.info("Video Capture Attempt %d", timeout+1)
             logging.debug("Video is still Streaming")
             logging.debug("Value of Push", return_dict[push_key])
             response = requests.get('https://localhost:3002/rtmp+hls/' + self.output_args[0] + '/index.m3u8',
@@ -140,6 +135,8 @@ class Ffmpeg:
             if response.status_code == 200:
                 self.result = response.status_code
                 break
+            time.sleep(1)
+            timeout += 1
         return_dict[play_key] = self.result
 
 class Multitask:
@@ -147,12 +144,12 @@ class Multitask:
         self.return_dict = Manager().dict()
         self.jobs = []
 
-    def add(self, process, push_key=None, play_key=None, timeout=None):
+    def add(self, process, push_key=None, play_key=None):
         if not (push_key or play_key):
             self.jobs.append(Process(target=process))
         else:
             logging.debug(push_key, play_key)
-            self.jobs.append(Process(target=process, args=(self.return_dict, push_key, play_key, timeout,)))
+            self.jobs.append(Process(target=process, args=(self.return_dict, push_key, play_key,)))
 
     def run(self, ):
         for process in self.jobs:
@@ -168,13 +165,13 @@ def get_record_length(filename):
 
 
 def inCloseWrite(event):
-    logging.info("Event for Recording Complete Triggered")
+    logging.info("Recording complete event triggered")
     src = event.pathname
     if "%252F" not in src:
         return
     assert (len(src) > 0)
-    assert (int(get_record_length(src)) == int(get_record_length(conf.VIDEOS[1])))
-    logging.info("Recording test passed!")
+    assert (int(get_record_length(src)) == int(get_record_length(conf.VIDEOS["countdown"])))
+    logging.info("Recording test has passed!")
     os.kill(os.getpid(), signal.SIGINT)
 
 
@@ -199,7 +196,7 @@ def validate_dimension(original_video, result):
     success = False
     while cap_retry < 5 and not success:
 
-        logging.info("Retry Cap open for %d", cap_retry+1)
+        logging.info("Video capture attempt %d", cap_retry+1)
 
         cap_retry += 1
         cap = cv2.VideoCapture(original_video)
