@@ -126,7 +126,7 @@ class Ffmpeg:
     def hls(self, return_dict, push_key=None, play_key=None):
         logging.debug("In HLS, push_key:", push_key, "play_key:", play_key)
         timeout = 0
-        while timeout < 5:
+        while timeout < 60:
             logging.info("Video Capture Attempt %d", timeout+1)
             logging.debug("Video is still Streaming")
             logging.debug("Value of Push", return_dict[push_key])
