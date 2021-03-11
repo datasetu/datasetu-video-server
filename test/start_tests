@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import requests, youtube_dl, json, random, time, os
+import requests, youtube_dl, json, random, time, os, urllib3, glob
 from urllib.parse import quote_plus
 import config as conf, test_video_server, logging
 
@@ -45,6 +45,10 @@ def download_videos():
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download([conf.YOUTUBE_URL_1, conf.YOUTUBE_URL_2, conf.YOUTUBE_URL_3, conf.YOUTUBE_URL_4])
 
+    for vid in conf.VIDEOS.keys():
+        for name in glob.glob(conf.VIDEOS[vid]+'*'):
+            conf.VIDEOS[vid] = name
+    print(conf.VIDEOS)
 
 if __name__ == '__main__':
 
@@ -52,6 +56,7 @@ if __name__ == '__main__':
     for log_name, log_obj in logging.Logger.manager.loggerDict.items():
         if log_name != '<module name>':
             log_obj.disabled = True
+    urllib3.disable_warnings()
 
     response = auth_setup()
     download_videos()
@@ -62,21 +67,11 @@ if __name__ == '__main__':
     token = quote_plus(response['token'])
     logging.debug(token)
 
-    # **********Testing Authenticator**************
-    # test_authenticator.test_is_string_safe(token)
-    # test_authenticator.test_is_valid_token(token)
-    # test_authenticator.test_symlink(token)
-    # test_authenticator.test_auth(token)
-
     # **********Testing Video Server***************
     test_video_server.test_record_length(token)
-    # # # time.sleep(60)
     test_video_server.test_token(token)
-    # # # time.sleep(60)
     test_video_server.test_id(token)
-    # time.sleep(60)
     test_video_server.test_hd_video(token)
-    # time.sleep(60)
     test_video_server.test_load(token)
     # test_video_server.test_hls(token)
     # test_video_server.test_live_stream(token)

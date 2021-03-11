@@ -12,6 +12,11 @@ services:
     restart: on-failure
     networks:
       - video-server-net
+    ulimits:
+      nofile:
+        soft: "1024000"
+        hard: "1024000"
+
     ports:
       - "1935:1935"
       - "3002:3002"

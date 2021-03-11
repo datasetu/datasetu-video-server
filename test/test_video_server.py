@@ -281,16 +281,47 @@ def test_load(token):
 
 
 def test_hls(token):
+    # push_retry = 0
+    success = False
+    # while push_retry < 5 and not success:
+
+        # logging.info("Try to Stream %d", push_retry + 1)
+
+        # push_retry += 1
+
+    multitask = utils.Multitask()
     publisher = utils.Ffmpeg()
     publisher.input(conf.VIDEOS[1])
-    publisher.output(utils.get_rtmp_path(conf.RTMP_HLS, conf.RESOURCE_ID[1], token), 'f', 'flv')
-    publisher.push({}, conf.PUSH_VALID, 20)
+    publisher.output(utils.get_rtmp_path(conf.RTMP_HLS, conf.RESOURCE_ID[1], token), '-f', 'flv')
 
-    # TODO: Find a way to remove this
-    sleep(20)
-    response = requests.get('https://localhost:3002/rtmp+hls/' + conf.RESOURCE_ID[1] + '/index.m3u8',
-                            cookies={'token': token}, verify=False)
-    assert (response.status_code == 200)
+    subscriber = utils.Ffmpeg()
+    subscriber.output(None,conf.RESOURCE_ID[1],token)
+
+    multitask.return_dict[conf.PUSH_VALID] = None
+    multitask.return_dict[conf.PLAY_VALID] = None
+
+    multitask.add(subscriber.hls, conf.PUSH_VALID, conf.PLAY_VALID)
+    multitask.add(publisher.push, conf.PUSH_VALID)
+
+    multitask.run()
+
+
+    logging.debug(multitask.return_dict[conf.PLAY_VALID], multitask.return_dict[conf.PUSH_VALID])
+
+    if (multitask.return_dict[conf.PUSH_VALID] and multitask.return_dict[conf.PLAY_VALID] == 200):
+        success = True
+# logging.info("%s when publisher has verified token passed!", app)
+    assert success
+#     publisher = utils.Ffmpeg()
+#     publisher.input(conf.VIDEOS[1])
+#     publisher.output(utils.get_rtmp_path(conf.RTMP_HLS, conf.RESOURCE_ID[1], token), 'f', 'flv')
+#     publisher.push({}, conf.PUSH_VALID, 20)
+#
+#     # TODO: Find a way to remove this
+#     sleep(20)
+#     response = requests.get('https://localhost:3002/rtmp+hls/' + conf.RESOURCE_ID[1] + '/index.m3u8',
+#                             cookies={'token': token}, verify=False)
+#     assert (response.status_code == 200)
     print('HLS test passed!', file=sys.stderr)
 
 

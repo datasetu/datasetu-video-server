@@ -1,9 +1,8 @@
 import os, subprocess, signal, string, random, config as conf
 from moviepy.editor import VideoFileClip
 from multiprocessing import Process, Manager
-import cv2, logging, ctypes, io , sys, tempfile
+import cv2, logging, ctypes, io , sys, tempfile, requests, time
 from contextlib import contextmanager
-
 
 libc = ctypes.CDLL(None)
 c_stderr = ctypes.c_void_p.in_dll(libc, 'stderr')
@@ -75,8 +74,8 @@ class Ffmpeg:
         # if 'f' not in output_kwargs.keys():
         #     self.output_args.append('-f')
         # self.output_args.append('flv')
-
-        self.output_args.append(output_file)
+        if output_file:
+            self.output_args.append(output_file)
 
     def push(self, return_dict, push_key=None, play_key=None, timeout=None):
         logging.debug("In Push, push_key:", push_key, "play_key:", play_key)
@@ -117,9 +116,9 @@ class Ffmpeg:
         while return_dict[push_key] is None:
             logging.debug("Video is still Streaming")
             logging.debug("Value of Push", return_dict[push_key])
-            cap = cv2.VideoCapture(self.output_args[0])
             f = io.StringIO()
             with stderr_redirector(f):
+                cap = cv2.VideoCapture(self.output_args[0])
                 if cap.isOpened():
                     logging.debug("Cap is Opened")
                     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
@@ -130,6 +129,18 @@ class Ffmpeg:
             f.close()
         return_dict[play_key] = self.result
 
+    def hls(self, return_dict, push_key=None, play_key=None, timeout=None):
+        logging.debug("In Dimension, push_key:", push_key, "play_key:", play_key)
+        time.sleep(20)
+        while return_dict[push_key] is None:
+            logging.debug("Video is still Streaming")
+            logging.debug("Value of Push", return_dict[push_key])
+            response = requests.get('https://localhost:3002/rtmp+hls/' + self.output_args[0] + '/index.m3u8',
+                                    cookies={'token': self.output_args[1]}, verify=False)
+            if response.status_code == 200:
+                self.result = response.status_code
+                break
+        return_dict[play_key] = self.result
 
 class Multitask:
     def __init__(self):
