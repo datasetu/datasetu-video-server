@@ -1,4 +1,6 @@
-import json
+import json,os
+
+Local_AUTH_BASE_URL = 'https://localhost:8443/auth/v1/'
 
 RESOURCE_ID = {
     "test-resource-1": "rbccps.org/e096b3abef24b99383d9bd28e9b8c89cfd50be0b/example.com/test-category/test-resource-1",
@@ -31,12 +33,12 @@ FRAME_RATE = 'frame_rate'
 
 RECORD_SRC_DIR = '../nginx/record/'
 
-ACL_SET_ENDPOINT = 'https://localhost:8443/auth/v1/acl/set'
+ACL_SET_ENDPOINT = Local_AUTH_BASE_URL +'acl/set'
 ACL_SET_CERTIFICATE = '../datasetu-ca/provider/provider.pem'
 ACL_SET_KEY = '../datasetu-ca/provider/provider.key.pem'
 ACL_SET_CREDENTIALS = (ACL_SET_CERTIFICATE, ACL_SET_KEY)
 
-REQUEST_TOKEN_ENDPOINT = "https://localhost:8443/auth/v1/token"
+REQUEST_TOKEN_ENDPOINT = Local_AUTH_BASE_URL + "token"
 REQUEST_TOKEN_CERTIFICATE = '../datasetu-ca/consumer/consumer.pem'
 REQUEST_TOKEN_KEY = '../datasetu-ca/consumer/consumer.key.pem'
 REQUEST_TOKEN_CREDENTIALS = (REQUEST_TOKEN_CERTIFICATE, REQUEST_TOKEN_KEY)
@@ -65,6 +67,6 @@ REQUEST_TOKEN_BODY = json.dumps({
     ]
 })
 
-INTROSPECT_ENDPOINT = "https://localhost:8443/auth/v1/token/introspect"
+INTROSPECT_ENDPOINT = Local_AUTH_BASE_URL + "token/introspect"
 
 LIVE_STREAM = 'rtsp://freja.hiof.no:1935/rtplive/_definst_/hessdalen03.stream'

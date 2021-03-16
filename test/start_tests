@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import requests, youtube_dl, json, random, time, os, urllib3, glob
+import requests, youtube_dl, json, urllib3, glob
 from urllib.parse import quote_plus
 import config as conf, test_video_server, logging
 
@@ -34,7 +34,7 @@ def auth_setup():
         verify=False,
         cert=conf.REQUEST_TOKEN_CREDENTIALS,
         data=conf.REQUEST_TOKEN_BODY,
-        headers={"content-type": "application/json", "Host": "auth.local"}
+        headers={"content-type": "application/json"}
     )
     return resp.json()
 
