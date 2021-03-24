@@ -23,7 +23,7 @@ def auth_setup():
     requests.post(
         url=conf.ACL_SET_ENDPOINT,
         verify=False,
-        cert=conf.ACL_SET_CREDENTIALS,
+        cert=conf.PROVIDER_CREDENTIALS,
         data=ACL_SET_BODY,
         headers={"content-type": "application/json"}
     )
@@ -32,7 +32,7 @@ def auth_setup():
     resp = requests.post(
         url=conf.REQUEST_TOKEN_ENDPOINT,
         verify=False,
-        cert=conf.REQUEST_TOKEN_CREDENTIALS,
+        cert=conf.CONSUMER_CREDENTIALS,
         data=conf.REQUEST_TOKEN_BODY,
         headers={"content-type": "application/json"}
     )
@@ -45,6 +45,7 @@ def download_videos():
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         ydl.download(conf.YOUTUBE_URL)
 
+    # TODO: Temporary Fix, need to find the long term solution
     for vid in conf.VIDEOS.keys():
         for name in glob.glob(conf.VIDEOS[vid]+'*'):
             conf.VIDEOS[vid] = name

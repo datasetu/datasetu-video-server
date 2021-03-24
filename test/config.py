@@ -34,14 +34,14 @@ FRAME_RATE = 'frame_rate'
 RECORD_SRC_DIR = '../nginx/record/'
 
 ACL_SET_ENDPOINT = Local_AUTH_BASE_URL +'acl/set'
-ACL_SET_CERTIFICATE = '../datasetu-ca/provider/provider.pem'
-ACL_SET_KEY = '../datasetu-ca/provider/provider.key.pem'
-ACL_SET_CREDENTIALS = (ACL_SET_CERTIFICATE, ACL_SET_KEY)
+PROVIDER_CERTIFICATE = '../datasetu-ca/provider/provider.pem'
+PROVIDER_KEY = '../datasetu-ca/provider/provider.key.pem'
+PROVIDER_CREDENTIALS = (PROVIDER_CERTIFICATE, PROVIDER_KEY)
 
 REQUEST_TOKEN_ENDPOINT = Local_AUTH_BASE_URL + "token"
-REQUEST_TOKEN_CERTIFICATE = '../datasetu-ca/consumer/consumer.pem'
-REQUEST_TOKEN_KEY = '../datasetu-ca/consumer/consumer.key.pem'
-REQUEST_TOKEN_CREDENTIALS = (REQUEST_TOKEN_CERTIFICATE, REQUEST_TOKEN_KEY)
+CONSUMER_CERTIFICATE = '../datasetu-ca/consumer/consumer.pem'
+CONSUMER_KEY = '../datasetu-ca/consumer/consumer.key.pem'
+CONSUMER_CREDENTIALS = (CONSUMER_CERTIFICATE, CONSUMER_KEY)
 REQUEST_TOKEN_BODY = json.dumps({
     "request": [
         {
