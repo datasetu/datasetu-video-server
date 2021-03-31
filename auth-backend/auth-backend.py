@@ -36,7 +36,7 @@ class Handler(watchdog.events.PatternMatchingEventHandler):
             if not os.path.exists(target):
                 os.makedirs(target)
 
-        recording_unique_id_split = record_name_split[-1].split("-")
+        recording_unique_id_split = record_name_split[-1].rsplit("-",1)
 
         if len(recording_unique_id_split) == 2:
             target += '/' + recording_unique_id_split[0]
