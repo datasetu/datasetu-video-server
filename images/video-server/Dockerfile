@@ -10,7 +10,7 @@ copy 	requirements.txt /
 
 # Install dependencies
 RUN apt-get update && \
-    apt-get install -y ca-certificates openssl libssl-dev python3-pip && \
+    apt-get install -y ca-certificates openssl libssl-dev python3-pip stunnel4 && \
     rm -rf /var/lib/apt/lists/* && \
     pip3 install --upgrade pip && \
 	pip3 install -r requirements.txt
@@ -41,6 +41,7 @@ RUN cd /tmp/build/nginx/${NGINX_VERSION} && \
         --http-log-path=/var/log/nginx/access.log \
         --http-client-body-temp-path=/tmp/nginx-client-body \
         --with-http_ssl_module \
+        --with-debug \
         --with-threads \
         --with-ipv6 \
 	    --with-stream \
@@ -55,8 +56,10 @@ RUN cd /tmp/build/nginx/${NGINX_VERSION} && \
 # Forward logs to Docker
 RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
     ln -sf /dev/stderr /var/log/nginx/error.log
+
 # Set up config file
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY stunnel.conf /etc/stunnel/stunnel.conf
 
 RUN echo "127.0.0.1  video.datasetu.org" | tee -a /etc/hosts
 
