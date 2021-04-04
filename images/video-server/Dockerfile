@@ -64,4 +64,4 @@ COPY stunnel.conf /etc/stunnel/stunnel.conf
 RUN echo "127.0.0.1  video.datasetu.org" | tee -a /etc/hosts
 
 EXPOSE 1935
-CMD ["nginx", "-g", "daemon off;"]
+CMD /etc/init.d/stunnel4 restart && nginx -g 'daemon off;'

@@ -25,6 +25,7 @@ services:
       - ../nginx/index.html:/usr/local/nginx/html/index.html
       - ../:/root/datasetu-video-server/
       - ../nginx/stunnel.conf:/etc/stunnel/stunnel.conf
+      - ../nginx/stunnel4:/etc/default/stunnel4
     env_file:
       - video-server.conf
 
