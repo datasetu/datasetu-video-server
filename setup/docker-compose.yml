@@ -12,6 +12,11 @@ services:
     restart: on-failure
     networks:
       - video-server-net
+    ulimits:
+      nofile:
+        soft: "1024000"
+        hard: "1024000"
+
     ports:
       - "1935:1935"
       - "3002:3002"
@@ -19,6 +24,8 @@ services:
       - ../nginx/nginx.conf:/etc/nginx/nginx.conf
       - ../nginx/index.html:/usr/local/nginx/html/index.html
       - ../:/root/datasetu-video-server/
+      - ../nginx/stunnel.conf:/etc/stunnel/stunnel.conf
+      - ../nginx/stunnel4:/etc/default/stunnel4
     env_file:
       - video-server.conf
 
@@ -32,5 +39,7 @@ services:
     volumes:
       - ../auth-backend:/root/auth-backend
       - ../:/root/datasetu-video-server/
+    environment:
+      - "SKIP_TESTS=true"
     env_file:
       - video-server.conf

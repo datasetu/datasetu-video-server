@@ -28,5 +28,4 @@ openssl x509 -CA ../datasetu-auth-server/ca.datasetu.org.crt -CAkey ../datasetu-
 #Sign resource server's CSR
 openssl x509 -CA ../datasetu-auth-server/ca.datasetu.org.crt -CAkey ../datasetu-auth-server/ca.key -CAcreateserial -in resource-server/resource-server.csr -req -days 365 -sha256 -out resource-server/resource-server.pem 
 
-openssl pkcs12 -inkey resource-server/resource-server.key.pem -in resource-server/resource-server.pem -export -out ../auth-backend/resource-server.p12 -passout pass:
-
+cp resource-server/resource-server.pem resource-server/resource-server.key.pem ../auth-backend/
