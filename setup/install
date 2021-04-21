@@ -26,7 +26,7 @@ fi
 #Generate all necessary certificates
 (cd ../datasetu-ca && ./gen-certs.sh)
 
-pip3 install -r ../images/auth-backend/requirements.txt
+pip3 install -r requirements.txt
 
 docker-compose -f docker-compose.yml -f docker-compose.auth.yml down --remove-orphans -v
 

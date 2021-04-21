@@ -86,6 +86,7 @@ class Ffmpeg:
         else:
             self.result = True
         return_dict[push_key] = self.result
+        logging.info("Ok")
 
     def play(self, return_dict, push_key=None, play_key=None):
         logging.debug("In Play, push_key:", push_key, "play_key:", play_key)
@@ -99,6 +100,7 @@ class Ffmpeg:
                     logging.debug("OpenCV video capture succeeded")
                     self.result = True
                     logging.debug("Result", self.result)
+                    logging.info("Ok")
                     break
                 else:
                     self.result = False
@@ -119,6 +121,7 @@ class Ffmpeg:
                     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
                     self.result = (width, height)
                     logging.debug("Result", self.result)
+                    logging.info("Ok")
                     break
             f.close()
         return_dict[play_key] = self.result
@@ -134,6 +137,7 @@ class Ffmpeg:
                                     cookies={'token': self.output_args[1]}, verify=False)
             if response.status_code == 200:
                 self.result = response.status_code
+                logging.info("Ok")
                 break
             time.sleep(1)
             timeout += 1
